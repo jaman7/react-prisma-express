@@ -1,0 +1,47 @@
+{
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features",
+    "editor.formatOnSave": true
+  },
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma",
+    "editor.formatOnSave": true
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features",
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "always",
+    },
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true
+  },
+  "files.watcherExclude": {
+    ".idea/**": true,
+    ".vscode/**": true,
+    "**/var/cache/**": true,
+    "**/var/logs/**": true,
+    "**/var/sessions/**": true,
+    "node_modules": true,
+    "vendor": true
+  },
+  "search.exclude": {
+    ".idea/**": true,
+    ".vscode/**": true,
+    "**/var/cache/**": true,
+    "**/var/logs/**": true,
+    "**/var/sessions/**": true,
+    "node_modules": true,
+    "vendor": true
+  },
+  "files.exclude": {
+    "**/._*": true,
+    "node_modules": true,
+    "vendor": true,
+    "*/vendor/": true
+  },
+}
