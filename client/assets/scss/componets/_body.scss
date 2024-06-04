@@ -1,0 +1,30 @@
+html {
+  text-rendering: optimizelegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  color: $colorPrimary;
+  font-weight: 400;
+  font-family: $fontRoboto;
+  -moz-osx-font-smoothing: grayscale !important;
+  -webkit-font-smoothing: subpixel-antialiased !important;
+  font-size: $fontBodySize !important;
+  background-color: $colorGray;
+}
+
+a {
+  color: $colorLightBlue;
+}
+
+.app {
+  display: flex;
+  height: 100%;
+}

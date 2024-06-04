@@ -1,0 +1,69 @@
+{
+  "form": {
+    "boardName": "Board name",
+    "status": "Current status",
+    "email": "Email",
+    "password": "Password",
+    "passwordConfirm": "Confirm password",
+    "errors": {
+      "failLogon": "Failed to log in",
+      "failCreate": "Failed to create an account",
+      "failUpdate": "Failed to update account",
+      "failReset": "Failed to reset password"
+    },
+    "info": {
+      "successResetPass": "Check your inbox for further instructions"
+    },
+    "button": {
+      "logIn": "Log In",
+      "update": "Update",
+      "reset": "Reset Password"
+    }
+  },
+  "buttons": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "content": {
+    "subtasks": "Subtasks",
+    "deleteTypeTitle": "Delete this {{value}}",
+    "infoDeleteTask": "Are you sure you want to delete the \"{{value}}\" task? This action cannot be reversed.",
+    "infoDeleteBoard": "Are you sure you want to delete the \"{{value}}\" board? This action will remove all columns and tasks and cannot be reversed."
+  },
+  "userProfile": {
+    "name": "Name",
+    "lastName": "Last name",
+    "email": "Email",
+    "password": "Password",
+    "passwordConfirm": "<PASSWORD>",
+    "role": "Role",
+    "title": "Title",
+    "phone": "Phone",
+    "location": "Location",
+    "errors": {
+      "failUpdate": "Failed to update account",
+      "failReset": "Failed to reset password"
+    },
+    "info": {
+      "successResetPass": "Check your inbox for further instructions"
+    },
+    "button": {
+      "view": "Edit {{value}} profile",
+      "finish": "Finish",
+      "reset": "Reset Password"
+    },
+    "modal": {
+      "add": "Add User - {{value}}",
+      "edit": "Edit user - {{value}}",
+      "view": "View user - {{value}}",
+      "name": "Name",
+      "email": "Email",
+      "lastName": "Last name",
+      "title": "Title",
+      "phone": "Phone",
+      "location": "Location"
+    }
+  }
+}

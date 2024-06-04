@@ -1,0 +1,44 @@
+.select-component {
+  font-family: $fontRoboto;
+
+  & .p-component {
+    width: 100%;
+  }
+
+  & .p-dropdown-label {
+    font-family: $fontRoboto;
+    padding: 0.25rem;
+    color: $colorBlue;
+    font-size: 14px;
+    line-height: initial;
+  }
+}
+
+.select-component-panel {
+  & .p-dropdown {
+    &-items {
+      font-family: $fontRoboto;
+      margin: 0;
+      padding: 0;
+    }
+
+    &-item {
+      margin: 0;
+      padding: 4px 8px;
+      color: $colorBlue;
+      font-size: 14px;
+      line-height: initial;
+      transition: all 200ms ease-in-out;
+
+      &.p-highlight {
+        background-color: $colorDarkBlue;
+        color: $colorWhite;
+      }
+
+      &:hover {
+        background-color: $colorDarkGray;
+        color: $colorBlue;
+      }
+    }
+  }
+}

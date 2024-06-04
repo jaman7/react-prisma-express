@@ -1,0 +1,128 @@
+$check-box-size-icon: 13px;
+$check-box-size: 16px;
+
+%reset-border-outline {
+  border: none;
+  outline: 0;
+}
+
+%svg-checkbox-prop {
+  background-position: center;
+  background-size: $check-box-size-icon;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  width: $check-box-size;
+  height: $check-box-size;
+}
+
+.checkbox-component {
+  cursor: pointer;
+
+  // &.ant-checkbox-wrapper {
+  //   display: inline-flex;
+  //   align-items: center;
+  //   justify-content: center;
+  //   font-size: $form-font-size;
+
+  //   &:focus,
+  //   &:hover {
+  //     @extend %reset-border-outline;
+  //   }
+
+  //   &::after {
+  //     content: none;
+  //   }
+  // }
+
+  // & .ant-checkbox {
+  //   border-radius: 50%;
+
+  //   @extend %reset-border-outline;
+
+  //   width: $check-box-size;
+  //   height: $check-box-size;
+  //   position: relative;
+  //   display: flex;
+  //   align-items: center;
+  //   justify-content: center;
+  //   border: 1px solid $bg-light-gray3;
+  //   transition: all 150ms ease-in-out;
+  //   top: initial;
+
+  //   & + span {
+  //     display: none;
+  //   }
+
+  //   &-input {
+  //     display: none;
+  //   }
+
+  //   &-inner {
+  //     width: 11px;
+  //     height: 11px;
+  //     border-radius: 50%;
+  //     top: initial;
+  //     left: initial;
+
+  //     @extend %reset-border-outline;
+
+  //     &::after {
+  //       content: none;
+  //       display: none;
+  //     }
+  //   }
+
+  //   &-checked {
+  //     background-color: $bg-white !important;
+  //     padding: 1px;
+
+  //     @extend %reset-border-outline;
+
+  //     & .ant-checkbox-inner {
+  //       background-color: $bg-blue;
+
+  //       @extend %svg-checkbox-prop;
+
+  //       height: 12px;
+  //       width: 12px;
+  //     }
+  //   }
+
+  //   &:focus,
+  //   &:hover {
+  //     background-color: lighten($bg-blue, 30) !important;
+
+  //     & .ant-checkbox-inner {
+  //       transition: all 0.2s ease-in-out;
+  //       background-color: lighten($bg-blue, 30) !important;
+
+  //       @extend %reset-border-outline;
+  //       @extend %svg-checkbox-prop;
+
+  //       height: 12px;
+  //       width: 12px;
+  //     }
+
+  //     &::after {
+  //       content: none;
+  //       visibility: hidden;
+  //     }
+  //   }
+
+  //   &.ant-checkbox-disabled {
+  //     box-shadow: 0 3px 6px 0 $shadow-primary-color;
+  //     border-color: $bg-gray;
+  //   }
+  // }
+
+  // &-readonly {
+  //   pointer-events: none !important;
+
+  //   & > * {
+  //     cursor: default !important;
+  //   }
+  // }
+}

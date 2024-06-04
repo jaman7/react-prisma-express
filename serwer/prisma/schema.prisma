@@ -1,41 +1,65 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String   @id @default(uuid())
+  email            String   @unique
+  name             String   @db.VarChar(255)
+  lastName         String?
+  image            String?
+  verified         Boolean? @default(false)
+  verificationCode String?  @unique @db.Text
+  password         String
+  title            String?
+  phone            String?
+  location         String?
+  role             Role     @default(USER)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  boards           Board[]  @relation("HasBoards")
+
+  @@unique([email, verificationCode])
+  @@index([email, verificationCode])
+  @@map(name: "users")
 }
 
 model Board {
-  id       Int      @id @default(autoincrement())
+  id       String   @id @default(uuid())
   name     String
-  columns  Column[]
   isActive Boolean  @default(false)
+  columns  Column[]
+  tasks    Task[]
+  users    User[]   @relation("HasBoards")
+  statusID Int
 }
 
 model Column {
-  id       Int    @id @default(autoincrement())
+  id       String @id @default(uuid())
   name     String
-  tasks    Task[]
-  board    Board  @relation(fields: [boardId], references: [id])
-  boardId  Int
+  boardId  String
   position Int
+  board    Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
 }
 
 model Task {
-  id       Int     @id @default(autoincrement())
-  title    String
-  content  String?
-  status   String // Status of the task (e.g., "To Do", "In Progress", "Done")
-  column   Column  @relation(fields: [columnId], references: [id])
-  columnId Int
-  position Int
+  id             String  @id @default(uuid())
+  boardId        String
+  title          String
+  content        String?
+  status         Int
+  position       Int
+  taskIdentifier String
+  userId         Int
+  board          Board   @relation(fields: [boardId], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+  USER
+  ADMIN
 }

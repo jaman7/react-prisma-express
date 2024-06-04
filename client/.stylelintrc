@@ -1,0 +1,26 @@
+{
+  "extends": [
+    "stylelint-config-recommended",
+    "stylelint-config-standard-scss"
+  ],
+  "rules": {
+    "value-keyword-case": [
+      "lower",
+      {
+        "ignoreFunctions": [
+          "t",
+          "var"
+        ]
+      }
+    ],
+    "scss/dollar-variable-pattern": [
+      "[a-z][a-zA-Z]+",
+      {
+        "ignore": "local"
+      }
+    ],
+    "no-descending-specificity": null,
+    "selector-class-pattern": null,
+    "scss/no-global-function-names": null
+  }
+}

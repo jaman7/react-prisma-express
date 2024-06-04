@@ -1,0 +1,68 @@
+.header {
+  display: flex;
+  padding: 1rem;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  max-height: 70px;
+
+  @include mq(maxsm) {
+    padding: 0;
+  }
+
+  &__logo {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+
+    &--img {
+      max-height: 45px;
+    }
+
+    @include mq(maxsm) {
+      display: none;
+    }
+  }
+
+  &-menu {
+    display: flex;
+    align-items: center;
+
+    @include mq(maxsm) {
+      width: 100%;
+    }
+
+    & .sync {
+      display: flex;
+      align-items: center;
+
+      @include mq(maxsm) {
+        display: none;
+      }
+    }
+  }
+}
+
+@keyframes slide-down {
+  0% {
+    opacity: 0;
+    transform: translateY(-60px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes grow-down {
+  0% {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}

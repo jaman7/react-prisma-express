@@ -1,0 +1,50 @@
+.table-component {
+  color: $colorPrimary;
+  font-weight: 400;
+  font-family: $fontRoboto;
+
+  & .p-column {
+    &-header-content {
+      padding: 0.25rem;
+      display: block;
+      font-size: 13px;
+      color: $colorPrimary;
+      font-weight: 400;
+    }
+  }
+
+  & .table-buttons-actions {
+    display: flex;
+
+    & .button-component {
+      min-width: 28px;
+      min-height: 28px;
+      padding: 5px;
+      margin-right: 0.5rem;
+
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+  }
+
+  & .avatar {
+    height: 28px !important;
+    width: 28px !important;
+    font-size: 14px;
+    margin: initial !important;
+  }
+
+  & .p-datatable-tbody {
+    & tr {
+      & td {
+        vertical-align: middle;
+        padding: 0.25rem;
+        font-size: 13px;
+        color: $colorPrimary;
+        font-weight: 400;
+        line-height: 1;
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+#docker-compose.yml (Base)
+version: '3.4'
+services:
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redisDB:/data
+volumes:
+  redisDB:
