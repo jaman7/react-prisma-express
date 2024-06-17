@@ -1,6 +1,6 @@
 import { useAuth } from 'core/auth/userAuth';
 import { FormikProps, useFormik } from 'formik';
-import { FormEvent, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IFormElements } from 'shared/components/formElements/FormElements.model';
 import { createConfigForm } from 'shared/utils/helpers';

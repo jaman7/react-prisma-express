@@ -1,23 +1,18 @@
-import { Switch } from '@headlessui/react';
-import { Fragment, Dispatch as ReactDispatch, SetStateAction, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import boardsSlice from 'store/dataSlice';
 import { IBoard } from 'store/data.model';
 import { IRootState } from 'store/store';
-import BoardIcon from 'shared/components/BoardIcon';
 import Button from 'shared/components/Button';
-import { BsMoonStarsFill, BsSunFill } from 'react-icons/bs';
 import { MdKeyboardDoubleArrowRight, MdKeyboardDoubleArrowLeft } from 'react-icons/md';
-import { MODAL_TYPE } from 'shared';
+import { MODAL_TYPE, UsersTYpe } from 'shared';
 import { v4 as uuidv4 } from 'uuid';
-import AddEditBoardModal from './modals/AddEditBoardModal';
 import LazyImage from 'shared/components/LazyImage';
 import { NavLink, useNavigate } from 'react-router-dom';
 import cx from 'classnames';
-import { motion, stagger, useAnimate } from 'framer-motion';
 import dataSlice from 'store/dataSlice';
 import { PiUsers } from 'react-icons/pi';
 import { GoProjectSymlink } from 'react-icons/go';
+import { useAuth } from 'core/auth/userAuth';
 
 const { setIsSideBarOpen } = dataSlice.actions;
 const { ADD } = MODAL_TYPE;
@@ -30,6 +25,7 @@ const Sidebar = () => {
   const isAdmin: boolean = useSelector((state: IRootState) => state?.dataSlice?.user?.role === 'ADMIN') as boolean;
   const isSideBarOpen = useSelector((state: IRootState) => state?.dataSlice.isSideBarOpen);
   const navigate = useNavigate();
+  const { user = {} } = useAuth() || {};
 
   const handleRedirect = (path: string) => {
     navigate(path);
@@ -71,6 +67,8 @@ const Sidebar = () => {
   //   ));
   // };
 
+  // UsersTYpe
+
   return (
     <>
       <div className={cx('sidebar', { open: isSideBarOpen, close: !isSideBarOpen })}>
@@ -89,19 +87,27 @@ const Sidebar = () => {
           </li>
         </ul> */}
 
-        <ul className="sidebar-menu">
-          {menuData?.map(item => (
-            <li key={uuidv4()} className={cx('item', { 'item-head': item.isHeading })}>
-              {item.isHeading ? (
-                <h5 className={cx('heading', { open: isSideBarOpen })}>Manage</h5>
-              ) : (
-                <NavLink className={({ isActive, isPending }) => (isPending ? 'pending' : isActive ? 'active' : '')} to={item.to as string}>
-                  <i>{item.icon ?? <></>}</i> <span className={cx('title', { open: isSideBarOpen })}>{item.name}</span>
-                </NavLink>
-              )}
-            </li>
-          ))}
-        </ul>
+        {user?.role === UsersTYpe.ADMIN ? (
+          <ul className="sidebar-menu">
+            {menuData?.map(item => (
+              <li key={uuidv4()} className={cx('item', { 'item-head': item.isHeading })}>
+                {item.isHeading ? (
+                  <h5 className={cx('heading', { open: isSideBarOpen })}>Manage</h5>
+                ) : (
+                  <NavLink
+                    className={({ isActive, isPending }) => (isPending ? 'pending' : isActive ? 'active' : '')}
+                    to={item.to as string}
+                  >
+                    <i>{item.icon ?? <></>}</i> <span className={cx('title', { open: isSideBarOpen })}>{item.name}</span>
+                  </NavLink>
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <></>
+        )}
+
         <Button handleClick={() => handleSideBar()}>
           {isSideBarOpen ? <MdKeyboardDoubleArrowLeft /> : <MdKeyboardDoubleArrowRight />}
           {isSideBarOpen && <span className="ms-1 line-height">Hide Sidebar</span>}

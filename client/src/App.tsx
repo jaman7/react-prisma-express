@@ -9,26 +9,25 @@ import { IRootState } from 'store/store';
 import UserProfile from 'view/pages/user-profile/UserProfile';
 import Sidebar from 'view/components/Sidebar';
 import Header from 'view/components/Header';
-import { IUser } from 'store/data.model';
 import Projects from 'view/pages/Projects';
 import UsersList from 'view/pages/UsersList';
 import AuthProvider from 'core/auth/AuthProvider';
-import Cookies from 'js-cookie';
+import { cookiesAuth } from 'core/auth/auth-helper';
 
 const App = () => {
   const isLoading = useSelector((state: IRootState) => state?.dataSlice.isLoading);
-  // const user: IUser = useSelector((state: IRootState) => state?.dataSlice.user ?? {});
-
-  const user = () => JSON.parse((Cookies.get('userInfo') as string) ?? null)?.accessToken;
+  const accessToken = (): boolean => {
+    return !!(cookiesAuth()?.accessToken ?? null);
+  };
 
   return (
     <>
       <AuthProvider>
         <BrowserRouter>
           <div className="layout">
-            {user() ? <Sidebar /> : <></>}
+            {accessToken() ? <Sidebar /> : <></>}
             <div className="layout-right">
-              {user() ? <Header /> : <></>}
+              {accessToken() ? <Header /> : <></>}
               <div className="content">
                 <Routes>
                   <Route path="/login" element={<Login path="/login" />} />

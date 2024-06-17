@@ -25,15 +25,3 @@ export const fetchAvatars = () => async (dispatch: (arg0: { payload: any; type: 
       dispatch(setIsLoading(false));
     });
 };
-
-export const fetchUsers = () => async (dispatch: (arg0: { payload: any; type: any }) => any) => {
-  new HttpService()
-    .service()
-    .get('/users')
-    .then((response: any) => {
-      dispatch(usersSuccess(response ?? []));
-    })
-    .catch(() => {
-      dispatch(setIsLoading(false));
-    });
-};

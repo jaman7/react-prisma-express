@@ -6,6 +6,14 @@ import clientPrisma from "../prisma-client";
 
 export const excludedFields = ["password", "verified", "verificationCode"];
 
+interface GetAllUsersParams {
+  page: number;
+  perPage: number;
+  sortBy: string;
+  sortOrder: Prisma.SortOrder;
+  filters: Record<string, any>;
+}
+
 export const createUser = async (input: Prisma.UserCreateInput) => {
   return (await clientPrisma.user.create({
     data: input,
@@ -20,6 +28,49 @@ export const findUniqueUser = async (
     where,
     select,
   })) as User;
+};
+
+export const getUserById = async (id: string) => {
+  return await clientPrisma.user.findUnique({
+    where: { id },
+    include: {
+      BoardOnUser: true,
+    },
+  });
+};
+
+export const createUpdateUser = async (type: string, id: string, data: any) => {
+  const { BoardOnUser, ...userData } = data;
+  if (type === "PUT") {
+    return await clientPrisma.user.update({
+      where: { id },
+      data: {
+        ...userData,
+        BoardOnUser: {
+          deleteMany: {}, // delete existing BoardOnUser records
+          create: BoardOnUser?.map((relation: any) => ({
+            boardId: relation.boardId,
+            assignedBy: relation.assignedBy,
+          })),
+        },
+      },
+      include: {
+        BoardOnUser: true,
+      },
+    });
+  } else if (type === "POST") {
+    return await clientPrisma.user.create({
+      data: { ...userData },
+    });
+  }
+};
+
+export const getAllUsers = async () => {
+  return await clientPrisma.user.findMany({
+    include: {
+      BoardOnUser: true,
+    },
+  });
 };
 
 export const signTokens = async (user: Prisma.UserCreateInput) => {

@@ -1,11 +1,8 @@
 import { useAuth } from 'core/auth/userAuth';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
 import Button from 'shared/components/Button';
 import LazyImage from 'shared/components/LazyImage';
-import { IUser } from 'store/data.model';
-import { IRootState } from 'store/store';
 import { FaCriticalRole } from 'react-icons/fa';
 import { FaRegCircleUser, FaPhone, FaLocationDot } from 'react-icons/fa6';
 import { FiMail } from 'react-icons/fi';
@@ -13,8 +10,8 @@ import { FiMail } from 'react-icons/fi';
 const UserProfile = () => {
   const [isEdit, setIsEdit] = useState(false);
   const { t } = useTranslation();
-  const user: IUser = useSelector((state: IRootState) => state?.dataSlice.user ?? {});
-  const { name, lastName, email, title, phone, location, role } = user || {};
+  const { user = {} } = useAuth() || {};
+  const { name, lastName, email, image, title, phone, location, role } = user || {};
 
   const buttonTextEditing = () =>
     isEdit ? t('userProfile.button.finish') : t('userProfile.button.view', { value: `${name} ${lastName}` });
@@ -75,7 +72,7 @@ const UserProfile = () => {
         <div className="user-profile-header">
           <Button handleClick={() => handleEdit()}>{buttonTextEditing?.()}</Button>
 
-          {urlUserImage?.(user?.image as string)}
+          {urlUserImage?.(image as string)}
 
           <h2 className="info">
             {name} {lastName}

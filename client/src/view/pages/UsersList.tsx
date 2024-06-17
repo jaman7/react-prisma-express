@@ -1,24 +1,28 @@
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { IModalType } from 'shared';
+import { useDispatch, useSelector } from 'react-redux';
 import LetteredAvatar from 'shared/components/LetteredAvatar';
 import Table from 'shared/components/table/table';
+import { TableIcons } from 'shared/components/table/table.enum';
 import { ITableIconsType } from 'shared/components/table/table.model';
+import { fetchUsers } from 'store/actions/usersActions';
+import { IUser } from 'store/data.model';
 import { IRootState } from 'store/store';
 import UserEditModal from 'view/components/modals/UserEditModal';
+import { IModal } from 'view/components/modals/modal.model';
+
+const { VIEW, EDIT, DELETE } = TableIcons;
 
 const UsersList = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [tableData, setTableData] = useState<any>({});
-  const [data, setData] = useState<any>({});
-  const [type, setType] = useState<IModalType | null>(null);
-  const [columns, setColumns] = useState<any[]>([]);
+  const [modal, setModal] = useState<IModal>({});
 
-  const users: any[] = useSelector((state: IRootState) => state?.dataSlice.users ?? []) ?? [];
+  const dispatch = useDispatch();
 
-  const logo = (user: any): JSX.Element => <LetteredAvatar name={`${user.name} ${user.lastName}`} />;
+  const users: IUser[] = useSelector((state: IRootState) => state?.dataSlice.users ?? []);
 
-  const dataCol = [
+  // const logo = (user: any): JSX.Element => <LetteredAvatar name={`${user.name} ${user.lastName}`} />;
+
+  const columns = [
     { field: 'avatar', header: 'avatar' },
     { field: 'name', header: 'Name' },
     { field: 'lastName', header: 'Last name' },
@@ -31,25 +35,24 @@ const UsersList = () => {
     { header: 'action' },
   ];
 
-  const action = (e: any): void => {
-    setData(e.rowData);
-    setType(e.type);
+  const action = (event: any): void => {
+    const { rowData, type } = event || {};
+    setModal({ id: rowData.id, type });
     setIsModalOpen(true);
   };
 
-  const buttonsIcons: ITableIconsType[] = ['VIEW', 'EDIT', 'DELETE'];
+  const buttonsIcons: ITableIconsType[] = [VIEW, EDIT, DELETE];
 
   useEffect(() => {
-    setTableData(users.map(el => ({ ...el, avatar: logo(el) })));
-    setColumns(dataCol);
+    dispatch(fetchUsers());
   }, []);
 
   return (
     <div className="p-4">
       <h1>Users</h1>
-      <Table columns={columns ?? []} value={tableData} action={action} buttonsIcons={buttonsIcons} />
+      <Table columns={columns ?? []} totalRecords={users?.length ?? 0} value={users ?? []} action={action} buttonsIcons={buttonsIcons} />
 
-      {isModalOpen ? <UserEditModal type={type as IModalType} id={data.id} setVisible={setIsModalOpen} visible={isModalOpen} /> : <></>}
+      {isModalOpen ? <UserEditModal modal={modal} setVisible={setIsModalOpen} visible={isModalOpen} /> : <></>}
     </div>
   );
 };

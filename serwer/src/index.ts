@@ -10,6 +10,7 @@ import authRouter from "./routes/auth.routes";
 import userRouter from "./routes/user.routes";
 import AppError from "./utils/appError";
 import config from "config";
+ import boardRouter from "./routes/board.routes";
 
 // import { auth } from "express-openid-connect";
 // import {
@@ -45,6 +46,7 @@ async function bootstrap() {
   // ROUTES
   app.use("/api/auth", authRouter);
   app.use("/api/users", userRouter);
+   app.use("/api", boardRouter);
 
   // Testing
   app.get("/api/healthchecker", (_, res: Response) => {

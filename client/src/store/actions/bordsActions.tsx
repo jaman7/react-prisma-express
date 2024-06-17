@@ -10,12 +10,12 @@ export const fetchBoards = () => async (dispatch: (arg0: { payload: any; type: a
   dispatch(setIsLoading(true));
   new HttpService()
     .service()
-    .get('/board')
+    .get('/api/boards')
     .then((response: IBoard[] | unknown) => {
       dispatch(boardsSuccess((response as IBoard[]) ?? []));
       dispatch(setIsLoading(false));
     })
-    .catch(e => {
+    .catch(() => {
       dispatch(setIsLoading(false));
     });
 };

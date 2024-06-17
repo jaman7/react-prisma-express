@@ -1,49 +1,57 @@
 import { Column } from 'primereact/column';
-import { DataTable } from 'primereact/datatable';
-import { Fragment } from 'react/jsx-runtime';
+import { DataTable, DataTableFilterMeta, DataTableStateEvent } from 'primereact/datatable';
 import Button from '../Button';
 import { v4 as uuidv4 } from 'uuid';
 import { icons } from './table.icons';
 import { ITableColumns, ITableIconsType } from './table.model';
+import { useState } from 'react';
 
-const Table = ({
-  columns,
-  value,
-  buttonsIcons,
-  action,
-}: {
+interface TableProps {
   action: (e?: any) => void;
   buttonsIcons?: ITableIconsType[];
   columns?: ITableColumns[];
   value?: any[];
-}) => {
-  const actionBodyTemplate = (rowData: any): JSX.Element | JSX.Element[] => {
-    return (
-      <Fragment>
-        <div className="table-buttons-actions">
-          {buttonsIcons?.map((icon: string) => {
-            return icon ? (
-              <Button key={uuidv4()} round={true} handleClick={() => action({ rowData, type: icon })}>
-                {icons?.[icon?.toLowerCase()] ?? ''}
-              </Button>
-            ) : (
-              <></>
-            );
-          })}
-        </div>
-      </Fragment>
-    );
-  };
+  paginator?: boolean;
+  totalRecords?: number;
+}
 
-  const bodyTemplate = (rowData, field: string) => <span>{rowData?.[field]}</span>;
+const Table = ({ columns, value, buttonsIcons, paginator = true, totalRecords, action }: TableProps) => {
+  const actionBodyTemplate = (rowData: any): JSX.Element => (
+    <div className="table-buttons-actions">
+      {buttonsIcons?.map(key => (
+        <Button key={uuidv4()} tooltip={`buttons.${key.toLowerCase()}`} round handleClick={() => action({ rowData, type: key })}>
+          {icons?.[key?.toLowerCase()]}
+        </Button>
+      ))}
+    </div>
+  );
+
+  const bodyTemplate = (rowData: any, field: string): JSX.Element => <span>{rowData[field]}</span>;
 
   return (
-    <DataTable className="table-component" value={value}>
+    <DataTable
+      dataKey="id"
+      paginator={paginator}
+      className="table-component"
+      value={value}
+      totalRecords={totalRecords ?? 0}
+      rows={5}
+      rowsPerPageOptions={[5, 10, 25, 50]}
+      removableSort
+      paginatorTemplate="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink RowsPerPageDropdown"
+      currentPageReportTemplate="{first} to {last} of {totalRecords}"
+    >
       {columns?.map(col =>
         col.header === 'action' ? (
-          <Column key={uuidv4()} body={actionBodyTemplate} exportable={false} />
+          <Column key={uuidv4()} header={col.header} body={actionBodyTemplate} exportable={false} />
         ) : (
-          <Column key={uuidv4()} field={col.field} header={col.header} body={rowData => bodyTemplate(rowData, col?.field as string)} />
+          <Column
+            key={uuidv4()}
+            sortable
+            field={col.field}
+            header={col.header}
+            body={rowData => bodyTemplate(rowData, col.field as string)}
+          />
         )
       )}
     </DataTable>

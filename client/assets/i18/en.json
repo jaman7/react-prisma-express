@@ -1,4 +1,12 @@
 {
+  "buttons": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "Save",
+    "view": "Browse",
+    "add": "Add"
+  },
   "form": {
     "boardName": "Board name",
     "status": "Current status",
@@ -19,12 +27,6 @@
       "update": "Update",
       "reset": "Reset Password"
     }
-  },
-  "buttons": {
-    "edit": "Edit",
-    "delete": "Delete",
-    "cancel": "Cancel",
-    "save": "Save"
   },
   "content": {
     "subtasks": "Subtasks",

@@ -3,8 +3,10 @@ import Cookies from 'js-cookie';
 import axios, { AxiosInstance, AxiosResponse, AxiosRequestConfig } from 'axios';
 import { EHttpMethod } from './http.enum';
 import { toHttpParams } from './http.utils';
-import { IParams, ITokens } from './http.models';
-import { dateIsoLocalZone } from 'shared/utils/helpers';
+import { IParams } from './http.models';
+import { dateIsoLocal } from 'shared/utils/helpers';
+import { cookiesAuth } from 'core/auth/auth-helper';
+import { IAuth } from 'core/auth/auth.model';
 
 class HttpService {
   private http: AxiosInstance;
@@ -19,7 +21,7 @@ class HttpService {
   }
 
   private getAuthorization(): any {
-    const cookie = JSON.parse((Cookies.get('userInfo') as string) ?? null) || {};
+    const cookie: IAuth = cookiesAuth() || {};
     return cookie?.accessToken ? { Authorization: `Bearer ${cookie?.accessToken}` } : {};
   }
 
@@ -29,20 +31,18 @@ class HttpService {
       : { 'Content-Type': 'application/json', ...this.getAuthorization() };
   }
 
-  private async updateTokens(response: AxiosResponse<ITokens>): Promise<void> {
+  private async updateTokens(response: IAuth): Promise<void> {
     const { accessToken, refreshToken, accessTokenExpiresAt, refreshTokenExpiresAt } = response || {};
     if (accessToken && refreshToken) {
-      const cookie = JSON.parse(Cookies.get('userInfo') as string) || {};
       Cookies.set(
         'userInfo',
         JSON.stringify({
-          email: cookie.email,
           accessToken,
           refreshToken,
-          accessTokenExpiresAt: dateIsoLocalZone(accessTokenExpiresAt),
-          refreshTokenExpiresAt: dateIsoLocalZone(refreshTokenExpiresAt),
+          accessTokenExpiresAt: dateIsoLocal(accessTokenExpiresAt as string),
+          refreshTokenExpiresAt: dateIsoLocal(refreshTokenExpiresAt as string),
         }),
-        { expires: new Date(dateIsoLocalZone(new Date(refreshTokenExpiresAt))) }
+        { expires: new Date(dateIsoLocal(refreshTokenExpiresAt as string) as Date) }
       );
     }
   }
@@ -71,19 +71,6 @@ class HttpService {
     return this;
   }
 
-  // private async request<T>(method: EHttpMethod, url: string, options: AxiosRequestConfig): Promise<T> {
-  //   try {
-  //     const response: AxiosResponse<T> = await this.http.request<T>({
-  //       method,
-  //       url,
-  //       ...options,
-  //     });
-  //     return response.data;
-  //   } catch (error) {
-  //     return this.normalizeError(error);
-  //   }
-  // }
-
   private async request<T>(method: EHttpMethod, url: string, options: AxiosRequestConfig): Promise<T> {
     try {
       const response: AxiosResponse<T> = await this.http.request<T>({
@@ -98,10 +85,10 @@ class HttpService {
       if (status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
         try {
-          const { refreshToken } = JSON.parse(Cookies.get('userInfo')) || {};
-          const response = await axios.post('/api/auth/refresh', { refreshToken });
-          await this.updateTokens(response);
-          originalRequest.headers.Authorization = `Bearer ${response.data.accessToken}`;
+          const { refreshToken } = cookiesAuth() || {};
+          const res = await axios.post('/api/auth/refresh', { refreshToken });
+          await this.updateTokens(res?.data ?? {});
+          originalRequest.headers.Authorization = `Bearer ${res?.data?.accessToken ?? ''}`;
           return this.http(originalRequest);
         } catch (refreshError) {
           return this.normalizeError(refreshError);

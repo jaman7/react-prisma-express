@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUsers } from 'store/actions';
+// import { fetchUsers } from 'store/actions';
 import boardsSlice from 'store/dataSlice';
 import { IBoard, IUser } from 'store/data.model';
 import { IRootState } from 'store/store';
 import Content from 'view/pages/dashboard/Content';
-import Sidebar from 'view/components/Sidebar';
-import Header from 'view/components/Header';
-import { fetchBoards } from 'store/actions/bordsActions';
-import { useAuth } from 'core/auth/userAuth';
-import dataSlice from 'store/dataSlice';
-const { setUser } = dataSlice.actions;
+// import Sidebar from 'view/components/Sidebar';
+// import Header from 'view/components/Header';
+// import { fetchBoards } from 'store/actions/bordsActions';
+// import { useAuth } from 'core/auth/userAuth';
+// import dataSlice from 'store/dataSlice';
+// const { setUser } = dataSlice.actions;
 
 const Dashboard = () => {
-  const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false);
+  // const [isSideBarOpen, setIsSideBarOpen] = useState<boolean>(false);
 
   const dispatch = useDispatch();
   // const { currentUser } = useAuth() || {};

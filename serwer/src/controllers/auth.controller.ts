@@ -54,16 +54,13 @@ export const registerUserHandler = async (
       .createHash("sha256")
       .update(verifyCode)
       .digest("hex");
-
     const user = await createUser({
       name: req.body.name,
       email: req.body.email.toLowerCase(),
       password: hashedPassword,
       verificationCode,
     });
-
     const newUser = omit(user, excludedFields);
-
     res.status(201).json({
       status: "success",
       data: {
@@ -89,7 +86,7 @@ export const loginUserHandler = async (
   next: NextFunction
 ) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req?.body || {};
     const user = await findUniqueUser(
       { email: email.toLowerCase() },
       { id: true, email: true, verified: true, password: true }
@@ -98,13 +95,14 @@ export const loginUserHandler = async (
       return next(new AppError(400, "Invalid email or password"));
     }
     const { accessToken, refreshToken } = await signTokens(user);
-    res.status(200).json({
+    const data = {
       status: "success",
       accessToken,
       accessTokenExpiresAt: accessTokenCookieOptions().expires,
       refreshToken,
       refreshTokenExpiresAt: refreshTokenCookieOptions().expires,
-    });
+    };
+    res.status(200).json(data);
   } catch (err: any) {
     next(err);
   }
@@ -116,12 +114,11 @@ export const refreshAccessTokenHandler = async (
   next: NextFunction
 ) => {
   try {
-    const { refreshToken } = req.body;
+    const { refreshToken } = req?.body || {};
     const message = "Could not refresh access token";
     if (!refreshToken) {
       return next(new AppError(403, message));
     }
-
     const decoded = verifyJwt<{ sub: string }>(
       refreshToken,
       "refreshTokenPublicKey"
@@ -129,26 +126,24 @@ export const refreshAccessTokenHandler = async (
     if (!decoded) {
       return next(new AppError(403, message));
     }
-
     const session = await redisClient.get(decoded.sub);
     if (!session) {
       return next(new AppError(403, message));
     }
-
     const user = await findUniqueUser({ id: JSON.parse(session).id });
     if (!user) {
       return next(new AppError(403, message));
     }
-
     const { accessToken: accessTokenRes, refreshToken: refreshTokenRes } =
       await signTokens(user);
-    res.status(200).json({
+    const data = {
       status: "success",
       accessToken: accessTokenRes,
       accessTokenExpiresAt: accessTokenCookieOptions().expires,
       refreshToken: refreshTokenRes,
       refreshTokenExpiresAt: refreshTokenCookieOptions().expires,
-    });
+    };
+    res.status(200).json(data);
   } catch (err: any) {
     next(err);
   }
@@ -159,7 +154,6 @@ export const logoutUserHandler = async (
   res: Response,
   next: NextFunction
 ) => {
-  console.log(res);
   try {
     await redisClient.del(res.locals.user.id);
     res.status(200).json({

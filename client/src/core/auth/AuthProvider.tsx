@@ -1,116 +1,131 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { ILogin, IUseAuth } from './auth.model';
+import { IAuth, IAuthUser, IUseAuth } from './auth.model';
 import { AuthContext } from './AuthContext';
 import Cookies from 'js-cookie';
-import moment, { Moment } from 'moment';
 import dataSlice from 'store/dataSlice';
 import HttpService from 'shared/services/http/http.service';
 import { useDispatch } from 'react-redux';
-import { dateIsoLocalZone } from 'shared/utils/helpers';
-const { clearStore, setUserData, setIsLoading } = dataSlice.actions;
+import { dateIsoLocal, momentDate, parseDateString } from 'shared/utils/helpers';
+import { cookiesAuth, cookiesAuthRemove, encodeBase64, isBeforeRefreshTokenExpiration, isRefreshTokenExist } from './auth-helper';
+const { clearStore, setIsLoading } = dataSlice.actions;
 
 const AuthProvider = ({ children }: { children?: JSX.Element | any }) => {
-  const [user, setUser] = useState<any | null>(null);
+  const [user, setUser] = useState<IAuthUser | null>(null);
+
   const httpService = new HttpService();
   const dispatch = useDispatch();
+  const timeBefore = 30000;
+  const authCookies: IAuth | null = cookiesAuth() || null;
 
   const fetchUser = async () => {
     dispatch(setIsLoading(true));
-    httpService
-      .service()
-      .get('/api/users/me')
-      .then(data => {
-        dispatch(setUserData(data));
-        setUser(data);
-        dispatch(setIsLoading(false));
-      })
-      .catch(e => {
-        dispatch(setIsLoading(false));
-      });
+    try {
+      const userData: IAuthUser = await httpService.service().get('/api/users/me');
+      setUser(userData ?? null);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      dispatch(setIsLoading(false));
+    }
   };
 
   const login = async (email: string, password: string) => {
     dispatch(setIsLoading(true));
-    httpService
-      .service()
-      .post('/api/auth/login', { email, password })
-      .then((res: any) => {
-        const { accessToken, refreshToken, accessTokenExpiresAt, refreshTokenExpiresAt } = res ?? {};
-        const jsonString = JSON.stringify({
-          email,
-          accessToken,
-          refreshToken,
-          accessTokenExpiresAt: dateIsoLocalZone(accessTokenExpiresAt ?? null),
-          refreshTokenExpiresAt: dateIsoLocalZone(refreshTokenExpiresAt ?? null),
-        });
-        Cookies.set('userInfo', jsonString, { expires: new Date(dateIsoLocalZone(accessTokenExpiresAt ?? null)!) });
-        fetchUser();
-      })
-      .catch(e => {
-        dispatch(setIsLoading(false));
+    try {
+      const res: IAuth = await httpService.service().post('/api/auth/login', { email, password });
+      const { accessToken, refreshToken, accessTokenExpiresAt, refreshTokenExpiresAt } = res ?? {};
+      const accessTokenExpires = dateIsoLocal(accessTokenExpiresAt as string);
+      const data: IAuth = {
+        accessToken,
+        refreshToken,
+        accessTokenExpiresAt: accessTokenExpires,
+        refreshTokenExpiresAt: dateIsoLocal(refreshTokenExpiresAt as string),
+      };
+      Cookies.set('userInfo', encodeBase64(data), {
+        expires: momentDate(accessTokenExpires as string),
       });
+      fetchUser();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      dispatch(setIsLoading(false));
+    }
   };
 
   const logout = async () => {
     dispatch(setIsLoading(true));
-    console.log(user);
-    httpService
-      .service()
-      .post('/api/auth/logout', user)
-      .then(() => {
-        dispatch(clearStore());
-        setUser(null);
-        dispatch(setIsLoading(false));
-        Cookies.remove('userInfo');
-      })
-      .catch(e => {
-        dispatch(setIsLoading(false));
-      });
+    try {
+      await httpService.service().get('/api/auth/logout');
+      dispatch(clearStore());
+      setUser(null);
+      cookiesAuthRemove();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      dispatch(setIsLoading(false));
+    }
   };
 
   const refreshToken = async (): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      const { refreshToken } = JSON.parse((Cookies.get('userInfo') as string) ?? null) || {};
-      console.log(refreshToken, user?.id);
-      if (refreshToken) {
-        httpService
-          .service()
-          .post('/api/auth/refresh', { refreshToken })
-          .then(async response => {
-            const { accessToken, refreshToken, accessTokenExpiresAt, refreshTokenExpiresAt } = response || {};
-            const { email } = JSON.parse((Cookies.get('userInfo') as string) ?? null) || {};
-            Cookies.set(
-              'userInfo',
-              JSON.stringify({
-                email,
-                accessToken,
-                refreshToken,
-                accessTokenExpiresAt: dateIsoLocalZone(accessTokenExpiresAt),
-                refreshTokenExpiresAt: dateIsoLocalZone(refreshTokenExpiresAt),
-              }),
-              { expires: new Date(dateIsoLocalZone(refreshTokenExpiresAt)!) }
-            );
-            resolve();
-          });
-      } else {
-        logout();
-        reject();
-      }
-    });
+    const cookieAuth = cookiesAuth() || {};
+    const { refreshToken } = cookieAuth || {};
+
+    if (!refreshToken) {
+      logout();
+      return Promise.reject('No refresh token available');
+    }
+
+    try {
+      const response: IAuth = await httpService.service().post('/api/auth/refresh', { refreshToken });
+      const { accessToken, refreshToken: newRefreshToken, accessTokenExpiresAt, refreshTokenExpiresAt } = response ?? {};
+      const accessTokenExpires = dateIsoLocal(accessTokenExpiresAt as string);
+      const data: IAuth = {
+        accessToken,
+        refreshToken: newRefreshToken,
+        accessTokenExpiresAt: accessTokenExpires,
+        refreshTokenExpiresAt: dateIsoLocal(refreshTokenExpiresAt as string),
+      };
+      Cookies.set('userInfo', encodeBase64(data), {
+        expires: parseDateString(accessTokenExpires as string),
+      });
+      return Promise.resolve();
+    } catch (e) {
+      logout();
+      return Promise.reject(e);
+    }
   };
 
   useEffect(() => {
-    const interval = setInterval(
-      () => {
-        refreshToken();
-      },
-      5 * 60 * 1000 - 999
-    );
-    return () => clearInterval(interval);
+    let interval: NodeJS.Timeout;
+    const cookieAuth = cookiesAuth() || {};
+    if (user?.id && cookieAuth?.refreshTokenExpiresAt) {
+      interval = setInterval(async () => {
+        if (isRefreshTokenExist() && isBeforeRefreshTokenExpiration(timeBefore)) {
+          await refreshToken();
+        }
+      }, timeBefore);
+    } else {
+      if (!!interval) {
+        clearInterval(interval);
+      }
+    }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [user?.id]);
+
+  useEffect(() => {
+    const { refreshToken } = cookiesAuth() || {};
+    if (!user?.id && refreshToken) {
+      fetchUser();
+    }
   }, []);
 
   const value: IUseAuth = {
+    auth: authCookies || {},
     user,
     login,
     logout,

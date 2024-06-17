@@ -10,7 +10,6 @@ const initialState: IData = {
   boards: [],
   fakeUsers: [],
   users: [],
-  user: {},
   dict: {},
 };
 
@@ -30,9 +29,6 @@ const dataSlice = createSlice({
     usersSuccess: (state, action: PayloadAction<IUser[]>) => {
       state.users = action?.payload ?? [];
     },
-    setUserData: (state, action: PayloadAction<string>) => {
-      state.user = { ...(state?.users?.find(user => user.email === action?.payload) ?? {}), dateSync: new Date().toISOString() };
-    },
     clearStore: state => {
       state = initialState;
     },
@@ -40,6 +36,7 @@ const dataSlice = createSlice({
       state.fakeUsers = action?.payload ?? [];
     },
     boardsSuccess: (state, action: PayloadAction<IBoard[]>) => {
+      console.log(action?.payload ?? []);
       state.boards = action?.payload ?? [];
     },
     addBoard: (state, action: PayloadAction<IBoard>) => {

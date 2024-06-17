@@ -3,6 +3,7 @@ import { isEqual } from 'lodash';
 import { IFormElements } from '../components/formElements/FormElements.model';
 import moment from 'moment';
 import { useNavigate } from 'react-router-dom';
+import { DATE_TIME_FORMAT } from 'shared/enums';
 
 export const mathSubtraction = (a: number | null, b: number, isIncrement = true): number => {
   const a1 = a?.toString()?.split('.');
@@ -129,12 +130,18 @@ export const arrayMove = (arr: any[], oldIndex: number, newIndex: number): any[]
 
 export const dateFormat = (date: string, format: string): string => moment(date).format(format);
 
+export const momentDate = (date: moment.MomentInput): Date => moment(date).toDate();
+
 export const handleRedirect = (path: string) => {
   const nawigate = useNavigate();
   nawigate(path);
 };
 
-export const dateIsoLocalZone = (date: string | null): Date | string | null => {
-  const d = date ? new Date(date) : null;
-  return d ? new Date(d.getTime() - d.getTimezoneOffset() * 60000)?.toISOString() : null;
+export const dateIsoLocal = (date: string | null): Date | string | null => {
+  const isoDate = date ? new Date(date)?.toISOString() : null;
+  return isoDate ? dateFormat(isoDate, DATE_TIME_FORMAT.MOMENT_DATE_T_TIME) : null;
+};
+
+export const parseDateString = (dateString: string): Date => {
+  return new Date(dateString);
 };

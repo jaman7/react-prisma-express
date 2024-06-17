@@ -1,17 +1,14 @@
 import Hamburger from 'hamburger-react';
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { Fragment, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 import { useClickAway, useWindowSize } from 'react-use';
-import { FaRegCircleUser } from 'react-icons/fa6';
-import LazyImage from 'shared/components/LazyImage';
-import { IUser } from 'store/data.model';
 import { IRootState } from 'store/store';
 import { Variants, motion } from 'framer-motion';
 import cx from 'classnames';
 import dataSlice from 'store/dataSlice';
-import { v4 as uuidv4 } from 'uuid';
 import LetteredAvatar from 'shared/components/LetteredAvatar';
+import { useAuth } from 'core/auth/userAuth';
 
 const { setIsSideBarOpen } = dataSlice.actions;
 
@@ -19,7 +16,7 @@ const Navbar = () => {
   const [isActive, setIsActive] = useState(false);
   const ref = useRef(null);
   const size = useWindowSize();
-  const user: IUser = useSelector((state: IRootState) => state?.dataSlice.user ?? {});
+  const { user = {} } = useAuth() || {};
   const isSideBarOpen = useSelector((state: IRootState) => state?.dataSlice.isSideBarOpen);
   const dispatch = useDispatch();
   const { name, lastName, role, email } = user || {};
@@ -50,7 +47,7 @@ const Navbar = () => {
     closed: { height: 0, opacity: 0, display: 'none', transition: { duration: 0.3 }, visibility: 'hidden' },
   };
 
-  const logo = (): JSX.Element => <LetteredAvatar name={`${user.name} ${user.lastName}`} />;
+  const logo = (): JSX.Element => <LetteredAvatar name={`${user?.name} ${user?.lastName}`} />;
 
   const userInfo = (isMenu: boolean): JSX.Element => {
     return (
@@ -82,7 +79,7 @@ const Navbar = () => {
 
             <div className="d-flex-column">
               {menuDropdownData?.map((item, i) => (
-                <Fragment key={uuidv4()}>
+                <Fragment key={`menu-item-${i}`}>
                   {i === menuDropdownData.length - 1 ? <hr className="dropdown-divider" /> : <></>}
                   <NavLink to={item.to} className="link-item">
                     {item.name}

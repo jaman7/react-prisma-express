@@ -20,6 +20,13 @@ export interface IColumns {
   dateCreated?: string;
 }
 
+export interface IBoardOnUser {
+  assignedAt?: string;
+  assignedBy?: string;
+  boardId?: string;
+  userId?: string;
+}
+
 export interface IBoard {
   id?: string;
   name?: string;
@@ -27,6 +34,7 @@ export interface IBoard {
   columns?: IColumns[];
   tasks?: IBoardTask[];
   dateCreated?: string;
+  BoardOnUser?: IBoardOnUser[];
   [name: string]: any;
 }
 

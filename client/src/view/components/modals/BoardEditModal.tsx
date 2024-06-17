@@ -23,7 +23,7 @@ interface IProps {
 const { ADD, EDIT, VIEW } = MODAL_TYPE;
 const { SAVE, CANCEL } = ButtonsKeys;
 
-const UserEditModal = ({ setVisible, visible, modal }: IProps) => {
+const BoardEditModal = ({ setVisible, visible, modal }: IProps) => {
   const [data, setData] = useState<any>({});
   const [formConfig, setFormConfig] = useState<IFormElements[]>([]);
   const dispatch = useDispatch();
@@ -46,18 +46,18 @@ const UserEditModal = ({ setVisible, visible, modal }: IProps) => {
 
   useEffect(() => {
     if (type === VIEW || type === EDIT) {
-      fetchUser(id);
+      fetchBoard(id);
     }
   }, [id, type]);
 
-  const fetchUser = (id: number) => {
+  const fetchBoard = (id: number) => {
     dispatch(setIsLoading(true));
     http
       .service()
-      .get('api/users/' + id)
-      .then(user => {
-        setData(user);
-        formik.setValues(user);
+      .get('api/boards/' + id)
+      .then(board => {
+        setData(board);
+        formik.setValues(board);
         dispatch(setIsLoading(false));
       })
       .catch(() => {
@@ -68,7 +68,7 @@ const UserEditModal = ({ setVisible, visible, modal }: IProps) => {
   const sendSettings = (id: number, data: any) => {
     console.log(data);
     dispatch(setIsLoading(true));
-    const httpUserSend = id ? http.service().put('api/users/' + id, data) : http.service().post('api/users', data);
+    const httpUserSend = id ? http.service().put('api/boards/' + id, data) : http.service().post('api/boards', data);
     httpUserSend
       .then(user => {
         setData(user);
@@ -120,4 +120,4 @@ const UserEditModal = ({ setVisible, visible, modal }: IProps) => {
   );
 };
 
-export default UserEditModal;
+export default BoardEditModal;

@@ -2,26 +2,12 @@
   display: flex;
   padding: 1rem;
   width: 100%;
-  justify-content: space-between;
   align-items: center;
+  justify-content: flex-end;
   max-height: 70px;
 
   @include mq(maxsm) {
     padding: 0;
-  }
-
-  &__logo {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-
-    &--img {
-      max-height: 45px;
-    }
-
-    @include mq(maxsm) {
-      display: none;
-    }
   }
 
   &-menu {
