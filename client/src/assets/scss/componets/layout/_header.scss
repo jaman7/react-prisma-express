@@ -1,0 +1,25 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  position: sticky;
+  top: 0;
+  padding: 1rem;
+  z-index: 10;
+
+  @extend %shared-box-shadow;
+
+  @include mq(maxsm) {
+    padding: 0;
+  }
+
+  &-container {
+    display: flex;
+    align-items: center;
+    width: auto;
+
+    @include mq(maxsm) {
+      width: 100%;
+    }
+  }
+}

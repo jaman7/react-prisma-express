@@ -1,0 +1,24 @@
+{
+  "table": {
+    "name": "Name",
+    "isActive": "Active",
+    "users": "Users",
+    "countAll": "All projects",
+    "countDone": "Done projects",
+    "countNotDone": "Not done projects",
+    "createdAt": "Created at",
+    "updatedAt": "Updated at"
+  },
+  "modal": {
+    "add": "Add project - {{value}}",
+    "edit": "Edit project - {{value}}",
+    "view": "View project - {{value}}",
+    "name": "Name",
+    "email": "Email",
+    "lastName": "Last name",
+    "title": "Title",
+    "phone": "Phone",
+    "location": "Location",
+    "password": "Password"
+  }
+}

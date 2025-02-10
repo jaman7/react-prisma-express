@@ -1,74 +1,55 @@
 import { IDictionary } from 'shared/components/select/Select.model';
 
-export interface IBoardTask {
+export interface IBoardColumn {
   id?: string;
-  boardId?: string;
-  title?: string;
-  description?: string;
-  status?: number | null;
-  taskIdentifier?: string;
-  dateCreated?: string;
-  userId?: number;
-  position?: number;
-}
-
-export interface IColumns {
-  id?: string;
-  boardId?: string;
   name?: string;
   position?: number;
-  dateCreated?: string;
+  boardId?: string;
+  status?: ColumnStatus;
 }
 
-export interface IBoardOnUser {
-  assignedAt?: string;
-  assignedBy?: string;
+export interface IBoardTask {
+  id?: string;
+  title?: string;
+  description?: string;
+  position?: number;
+  columnId?: string;
   boardId?: string;
-  userId?: string;
+  userId?: string | null;
+  status?: TaskStatus;
+  createdAt?: string;
+  updatedAt?: string;
+  [name: string]: any;
 }
+
+export interface IBoardProject {
+  id?: string;
+  name?: string;
+  description?: string;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export type ColumnStatus = 'TO_DO' | 'IN_PROGRESS' | 'CR' | 'READY_FOR_TEST' | 'TESTING' | 'DONE';
+
+export type TaskStatus = ColumnStatus;
 
 export interface IBoard {
   id?: string;
   name?: string;
-  isActive?: boolean;
-  columns?: IColumns[];
-  tasks?: IBoardTask[];
-  dateCreated?: string;
-  BoardOnUser?: IBoardOnUser[];
-  [name: string]: any;
-}
-
-export interface IFakeUsers {
-  id?: number;
-  _id?: string;
-  firstName?: string;
-  lastName?: string;
-  username?: string;
-  email?: string;
-  image?: string;
-}
-
-export interface IUser {
-  id?: number;
+  projectId?: string;
   createdAt?: string;
-  email?: string;
-  name?: string;
-  lastName?: string;
-  image?: string;
-  role?: string;
-  dateSync?: string;
-  title?: string;
-  phone?: string;
-  location?: string;
+  updatedAt?: string;
+  columns?: IBoardColumn[];
+  tasks?: IBoardTask[];
+  project?: IBoardProject;
 }
 
 export interface IData {
+  board?: IBoard;
   dict?: IDictionary;
-  boards?: IBoard[];
-  fakeUsers?: IFakeUsers[];
   isLoading?: boolean;
   isSideBarOpen?: boolean;
   error?: boolean;
-  users?: IUser[];
-  user?: IUser;
 }

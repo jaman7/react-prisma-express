@@ -1,3 +1,4 @@
+import { IFormElementsTypes } from '../formElements/FormElements.model';
 import { InputTypes } from './input.types';
 
 export interface IInput {
@@ -8,7 +9,7 @@ export interface IInput {
   step?: number;
   disableBtnNumbers?: boolean;
   disabled?: boolean;
-  [name: string]: any | any[];
+  value?: string | number;
 }
 
 export const inputConfigDefault = (): IInput => ({

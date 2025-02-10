@@ -1,0 +1,28 @@
+.texteditor-component {
+  background-color: var(--main-bg-white);
+  border-radius: 0.35rem;
+
+  & .ql-toolbar {
+    border-top-left-radius: 0.35rem;
+    border-top-right-radius: 0.35rem;
+    border: 1px solid var(--main-border-primary) !important;
+    padding: 6px 8px !important;
+  }
+
+  & .ql-container {
+    border-bottom-left-radius: 0.35rem;
+    border-bottom-right-radius: 0.35rem;
+    border: 1px solid var(--main-border-primary) !important;
+    border-top: 0 !important;
+  }
+
+  & .ql-editor {
+    padding: 6px 8px;
+  }
+
+  &:focus,
+  &:focus-visible,
+  &:focus-within {
+    border-color: var(--main-text-blue) !important;
+  }
+}

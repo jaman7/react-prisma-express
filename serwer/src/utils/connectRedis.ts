@@ -1,16 +1,15 @@
-import { createClient } from "redis";
+import { createClient } from 'redis';
+import logger from './logger';
 
-const redisUrl = "redis://localhost:6379";
+const redisUrl = 'redis://localhost:6379';
 
-const redisClient = createClient({
-  url: redisUrl,
-});
+const redisClient = createClient({ url: redisUrl });
 
 const connectRedis = async () => {
   try {
     await redisClient.connect();
-    redisClient.set("try", "Hello Welcome to Express with TypeORM");
   } catch (error) {
+    logger.error('Redis connection error', error);
     setTimeout(connectRedis, 5000);
   }
 };

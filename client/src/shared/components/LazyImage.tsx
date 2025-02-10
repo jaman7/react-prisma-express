@@ -6,10 +6,11 @@ export interface ILazyImage {
   src?: string;
   alt?: string;
   onClick?: () => void;
+  placeholderSrc?: string;
 }
 
 const LazyImage = (props: ILazyImage) => {
-  const { id, className, src, alt, onClick } = props || {};
+  const { id, className, src, alt, onClick, placeholderSrc } = props || {};
 
   const [loaded, setLoaded] = useState<boolean>(false);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -18,11 +19,17 @@ const LazyImage = (props: ILazyImage) => {
     if (imgRef.current && imgRef?.current?.complete) {
       setLoaded(true);
     }
-  }, []);
+  }, [src]);
 
   return (
     <>
-      {!loaded && <img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="" aria-hidden="true" />}
+      {!loaded && (
+        <img
+          src={placeholderSrc || 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='}
+          alt=""
+          aria-hidden="true"
+        />
+      )}
       <img
         id={id}
         loading="lazy"
@@ -30,7 +37,7 @@ const LazyImage = (props: ILazyImage) => {
         alt={alt}
         ref={imgRef}
         onLoad={() => setLoaded(true)}
-        className={`${className} ${loaded ? 'lazyloaded' : 'lazyloading'}`}
+        className={`img-fluid ${className} ${loaded ? 'lazyloaded' : 'lazyloading'}`}
         onClick={onClick}
       />
     </>

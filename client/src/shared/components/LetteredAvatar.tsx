@@ -1,43 +1,69 @@
-const LetteredAvatar = ({ name }: { name: string }) => {
-  const getInitials = (name: string) => {
-    return `${name.split(' ')[0][0]}${name.split(' ')[1][0]}`;
-  };
+import { Tooltip } from 'primereact/tooltip';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
-  const generateBackground = (name: string) => {
+interface IProps {
+  name: string;
+  size?: number;
+  tooltipText?: string;
+}
+
+const LetteredAvatar: React.FC<IProps> = ({ name, size = 40, tooltipText = '' }) => {
+  const { t } = useTranslation();
+  const getInitials = useMemo(() => {
+    const nameParts = name.split(' ');
+    if (nameParts.length < 2) return name[0].toUpperCase();
+    return `${nameParts[0][0]}${nameParts[1][0]}`.toUpperCase();
+  }, [name]);
+
+  const generateBackground = useMemo(() => {
     let hash = 0;
-    let i;
-
-    for (i = 0; i < name.length; i += 1) {
+    for (let i = 0; i < name.length; i++) {
       hash = name.charCodeAt(i) + ((hash << 5) - hash);
     }
 
     let color = '#';
-
-    for (i = 0; i < 3; i += 1) {
+    for (let i = 0; i < 3; i++) {
       const value = (hash >> (i * 8)) & 0xff;
-      color += `00${value.toString(16)}`.slice(-2);
+      const adjustedValue = Math.min(value, 128);
+      color += `00${adjustedValue.toString(16)}`.slice(-2);
     }
-
     return color;
-  };
+  }, [name]);
 
-  let initials = getInitials(name);
-  let color = generateBackground(name);
-
-  const customStyle = {
-    display: 'flex',
-    height: '40px',
-    width: '40px',
-    borderRadius: '50%',
-    color: 'white',
-    background: color,
-    margin: 'auto',
-  };
+  const customStyle = useMemo(
+    () => ({
+      display: 'flex',
+      height: `${size}px`,
+      width: `${size}px`,
+      borderRadius: '50%',
+      backgroundColor: generateBackground,
+      color: 'white',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontWeight: 500,
+      fontSize: `${size / 2.5}px`,
+      lineHeight: 1,
+      cursor: 'cross',
+    }),
+    [size, generateBackground]
+  );
 
   return (
-    <div className="avatar" style={customStyle}>
-      <span style={{ margin: 'auto' }}> {initials} </span>
-    </div>
+    <>
+      <div
+        id="LetteredAvatar"
+        className="avatar"
+        style={customStyle}
+        aria-label={`Avatar for ${name}`}
+        data-pr-tooltip={t(tooltipText || '')}
+        data-pr-classname="target-tooltip shadow-none"
+        data-pr-position="top"
+      >
+        <span>{getInitials}</span>
+      </div>
+      <Tooltip target="#LetteredAvatar" />
+    </>
   );
 };
 

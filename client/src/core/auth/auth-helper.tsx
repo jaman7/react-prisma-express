@@ -1,33 +1,47 @@
-import moment from 'moment';
 import Cookies from 'js-cookie';
+import { addMilliseconds } from 'date-fns';
 import { IAuth } from './auth.model';
 
+// Funkcje pomocnicze do kodowania Base64
 export const encodeBase64 = <T,>(obj: T): string => {
   const jsonString = JSON.stringify(obj);
-  return btoa(unescape(encodeURIComponent(jsonString)));
+  return btoa(encodeURIComponent(jsonString));
 };
 
 export const decodeBase64 = <T,>(base64Str: string): T => {
-  return base64Str ? JSON.parse(decodeURIComponent(escape(atob(base64Str)))) : {};
+  if (!base64Str) return {} as T;
+  return JSON.parse(decodeURIComponent(atob(base64Str)));
 };
 
+// Sprawdzenie, czy refresh token wygasa w określonym czasie
 export const isBeforeRefreshTokenExpiration = (timeBefore: number): boolean => {
   const userInfo = Cookies.get('userInfo');
-  const { refreshTokenExpiresAt } = decodeBase64(userInfo as string) || {};
-  const expirationTime = moment(refreshTokenExpiresAt).valueOf();
-  return expirationTime - moment().valueOf() <= timeBefore * 1.5;
+  if (!userInfo) return false;
+
+  const { refreshTokenExpiresAt } = decodeBase64<{ refreshTokenExpiresAt: string }>(userInfo);
+  if (!refreshTokenExpiresAt) return false;
+
+  const currentTime = new Date();
+
+  return currentTime >= addMilliseconds(refreshTokenExpiresAt, -timeBefore * 1.5);
 };
 
+// Sprawdzenie, czy refresh token istnieje
 export const isRefreshTokenExist = (): boolean => {
   const userInfo = Cookies.get('userInfo');
-  const { refreshTokenExpiresAt } = decodeBase64(userInfo as string) || {};
+  if (!userInfo) return false;
+
+  const { refreshTokenExpiresAt } = decodeBase64<{ refreshTokenExpiresAt: string }>(userInfo);
   return !!refreshTokenExpiresAt;
 };
 
+// Pobranie danych użytkownika z ciasteczek
 export const cookiesAuth = (): IAuth => {
-  return decodeBase64(Cookies.get('userInfo') as string) || {};
+  const userInfo = Cookies.get('userInfo');
+  return userInfo ? decodeBase64<IAuth>(userInfo) : ({} as IAuth);
 };
 
+// Usunięcie danych autoryzacji z ciasteczek
 export const cookiesAuthRemove = (): void => {
   Cookies.remove('userInfo');
 };

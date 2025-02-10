@@ -1,0 +1,16 @@
+@use "sass:math";
+@import "./bootstrap";
+@import "primereact/resources/primereact.min.css";
+@import "primereact/resources/themes/lara-light-cyan/theme.css";
+@import "primeicons/primeicons.css";
+@import "./variables";
+@import "./mixins";
+@import "./extend";
+@import "./utility";
+@import "./componets";
+
+.p-tooltip.shadow-md {
+  & .p-tooltip-text {
+    box-shadow: none !important;
+  }
+}

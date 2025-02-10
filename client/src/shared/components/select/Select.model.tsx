@@ -1,4 +1,4 @@
-export type SelectType = 'Select';
+export type SelectType = 'select';
 
 export interface IDictType {
   displayName?: string;
@@ -13,13 +13,15 @@ export interface IDictionary {
 export interface ISelect {
   formControlName?: string;
   placeholder?: string;
-  readonly?: boolean;
-  field?: string;
-  type?: SelectType;
-  defaultValue?: number;
+  defaultValue?: number | string;
   dictData?: IDictType[];
   disabled?: boolean;
-  [name: string]: any;
+  size?: string;
+  mode?: string;
+}
+
+export enum SelectEnum {
+  SELECT = 'select',
 }
 
 export const selectConfigDefault = (): ISelect => ({
@@ -27,6 +29,4 @@ export const selectConfigDefault = (): ISelect => ({
   mode: 'default',
   placeholder: '',
   dictData: [],
-  formCellClass: '',
-  customClass: '',
 });

@@ -1,0 +1,158 @@
+/* SCSS Utility Classes */
+.bg-white {
+  background-color: var(--main-bg-white);
+}
+
+.bg-secondary {
+  background-color: var(--main-bg-secondary) !important;
+}
+
+.bg-page {
+  background-color: var(--main-bg-page);
+}
+
+.bg-blue {
+  background-color: var(--main-bg-blue);
+}
+
+.bg-gray {
+  background-color: var(--main-bg-gray);
+}
+
+.bg-disabled {
+  background-color: var(--main-bg-disabled);
+}
+
+.text-primary {
+  color: var(--main-text-primary);
+}
+
+.text-secondary {
+  color: var(--main-text-secondary);
+}
+
+.text-tertiary {
+  color: var(--main-text-tertiary);
+}
+
+.text-placeholder {
+  color: var(--main-text-placeholder);
+}
+
+.text-disabled {
+  color: var(--main-text-placeholder);
+}
+
+.button-primary {
+  background-color: var(--main-button-primary-bg);
+  border-color: var(--main-button-primary-border);
+  color: var(--main-text-white);
+}
+
+.button-secondary {
+  color: var(--main-button-secondary-color);
+  border-color: var(--main-border-primary);
+  background-color: var(--main-bg-primary);
+}
+
+.button-tertiary {
+  color: var(--main-button-tertiary-color);
+  border-color: var(--main-button-tertiary-border);
+  background-color: var(--main-bg-primary);
+}
+
+.border-primary {
+  border-color: var(--main-border-primary) !important;
+}
+
+.border-secondary {
+  border-color: var(--main-border-secondary);
+}
+
+.border-blue {
+  border-color: var(--main-border-blue);
+}
+
+.link-color {
+  color: var(--main-link-color);
+}
+
+.font-family-roboto {
+  font-family: var(--main-font-roboto);
+}
+
+.text-sm {
+  font-size: 14px;
+}
+
+.text-base {
+  font-size: 16px;
+}
+
+.text-lg {
+  font-size: 18px;
+}
+
+.font-11 {
+  font-size: 11px;
+}
+
+.font-12 {
+  font-size: 12px;
+}
+
+.font-13 {
+  font-size: 13px;
+}
+
+.h-6 {
+  height: 24px;
+}
+
+.h-8 {
+  height: 32px;
+}
+
+.h-12 {
+  height: 48px;
+}
+
+.w-6 {
+  width: 24px;
+}
+
+.w-8 {
+  width: 32px;
+}
+
+.w-12 {
+  width: 48px;
+}
+
+.ps-32px {
+  padding-left: 32px;
+}
+
+.lazyload,
+.lazyloading {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+.lazyloaded {
+  opacity: 1;
+  transition: all 200ms;
+  transform: scale(1);
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
+
+.flex-1 {
+  flex: 1;
+}

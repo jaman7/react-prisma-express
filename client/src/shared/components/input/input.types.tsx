@@ -1,9 +1,24 @@
-export type InputTypes = 'text' | 'number' | 'range' | 'password' | 'switch';
+export type InputTypes =
+  | 'text'
+  | 'number'
+  | 'search'
+  | 'password'
+  | 'range'
+  | 'input-text'
+  | 'input-number'
+  | 'input-search'
+  | 'input-password'
+  | 'input-range';
 
-export enum InputType {
+export enum InputTypeEnum {
+  INPUT_TEXT = 'input-text',
+  INPUT_NUMBER = 'input-number',
+  INPUT_SEARCH = 'input-search',
+  INPUT_PASSWORD = 'input-password',
+  INPUT_RANGE = 'input-range',
   TEXT = 'text',
-  PASSWORD = 'password',
   NUMBER = 'number',
+  SEARCH = 'search',
+  PASSWORD = 'password',
   RANGE = 'range',
-  SWITCH = 'switch',
 }

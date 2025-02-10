@@ -1,53 +1,56 @@
-import { FormikProps } from 'formik';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
-import { useEffect, useState } from 'react';
+import { forwardRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ISelect, selectConfigDefault } from './Select.model';
-import { ifChanged, usePrevious } from 'shared/utils/helpers';
+import Validator from '../validator/Validator';
+import classNames from 'classnames';
 
 interface IProps {
-  config?: ISelect;
-  formik?: FormikProps<any>;
-  [name: string]: any;
+  name?: string;
+  config?: Partial<ISelect>;
+  value?: string | number;
+  onChange?: (value: string | number) => void;
+  error?: string | null | undefined;
+  touched?: boolean;
 }
 
-const Select = (props: IProps) => {
+const Select = forwardRef<HTMLDivElement, IProps>(({ name, value, onChange, error, config }, ref) => {
   const { t } = useTranslation();
-  const { config, formControlName, formik } = props || {};
-  const value = formik?.values?.[formControlName] ?? null;
-  const [selectConfig, setSelectConfig] = useState<Partial<ISelect>>(selectConfigDefault());
-  const prevConfig = usePrevious({ config });
 
-  useEffect(() => {
-    ifChanged(prevConfig?.config, config, () => {
-      setSelectConfig({ ...selectConfigDefault(), ...config });
-    });
-  }, [config]);
+  const selectConfig = useMemo(() => ({ ...selectConfigDefault(), ...config }), [config]);
 
   const { dictData, placeholder, disabled } = selectConfig || {};
 
-  const setChange = (e: DropdownChangeEvent) => {
-    formik?.setFieldValue?.(formControlName, e.value);
-    e.preventDefault();
+  const handleChange = (e: DropdownChangeEvent) => {
+    onChange?.(e.value);
   };
 
+  const selectClasses = classNames('select-component', {
+    invalid: error && !disabled,
+    'cursor-not-allowed bg-disabled': disabled,
+  });
+
   return (
-    <>
-      <Dropdown
-        className="select-component"
-        id={formControlName ?? ''}
-        name={formControlName ?? ''}
-        value={value}
-        onChange={e => setChange(e)}
-        options={dictData ?? []}
-        optionLabel={'displayName'}
-        optionValue="id"
-        placeholder={placeholder ? t(placeholder as string) : ''}
-        panelClassName="select-component-panel"
-        disabled={disabled}
-      />
-    </>
+    <div className="block">
+      <div className="d-flex flex-column" ref={ref}>
+        <Dropdown
+          className={selectClasses}
+          id={name ?? ''}
+          name={name ?? ''}
+          value={value}
+          onChange={handleChange}
+          options={dictData ?? []}
+          optionLabel={'displayName'}
+          optionValue="id"
+          placeholder={placeholder ? t(placeholder as string) : ''}
+          panelClassName="select-component-panel"
+          disabled={disabled}
+        />
+      </div>
+
+      {error && <Validator error={error} />}
+    </div>
   );
-};
+});
 
 export default Select;

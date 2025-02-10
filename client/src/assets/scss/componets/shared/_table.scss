@@ -1,0 +1,220 @@
+// @import "main";
+
+// src\assets\scss\_extend.scss
+
+$font-size-thead: 14px;
+$font-size-paginator: 14px;
+$table-border-color: var(--main-border-primary);
+$border-width: 1px;
+$fontRoboto: var(--main-font-roboto);
+$thead-color: var(--main-text-primary);
+$tbody-color: var(--main-text-primary);
+$thead-background-color: var(--main-bg-white);
+$thead-filters-background-color: var(--main-bg-page);
+$paginator-background: var(--main-bg-secondary);
+
+.table-component {
+  font-family: $fontRoboto;
+
+  &.p-datatable {
+    & .p-datatable-thead > tr > th,
+    & .p-datatable-tbody > tr > td {
+      border: $border-width solid $table-border-color;
+      border-width: $border-width $border-width 0 0;
+      line-height: 1;
+
+      &:first-child {
+        border-left-width: 1px;
+      }
+
+      &:not(:last-child) {
+        border-right-width: 1.5px;
+      }
+
+      span {
+        overflow: hidden;
+        white-space: inherit;
+        text-overflow: ellipsis;
+        font-family: inherit;
+      }
+    }
+
+    & .p-datatable-thead {
+      & > tr > th {
+        padding: 6.5px 0.5rem;
+        text-align: center;
+        font-family: $fontRoboto;
+        color: $thead-color;
+        font-size: $font-size-thead;
+        background-color: $thead-background-color;
+        font-weight: 500;
+      }
+
+      & > tr.row-filters > th {
+        border-top-width: 2px;
+      }
+
+      & :nth-child(2) th {
+        padding: 4px 0.5rem;
+      }
+    }
+
+    & .p-datatable-tbody > tr {
+      font-family: $fontRoboto;
+      color: $tbody-color;
+
+      &:first-child > td {
+        border-top-width: 2px;
+      }
+
+      & > td {
+        padding: 4px 0.5rem;
+        font-family: $fontRoboto;
+        color: $tbody-color;
+        white-space: nowrap !important;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+
+  & .p-datatable-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    background-clip: padding-box;
+    border-bottom: $border-width solid $table-border-color;
+  }
+
+  & .p-column-header-content {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  & .p-paginator {
+    display: flex;
+    align-items: center;
+    font-family: $fontRoboto;
+    font-size: $font-size-paginator;
+    margin-top: 4px;
+    background-color: $paginator-background;
+    color: $tbody-color;
+
+    & .p-paginator-current {
+      margin: 0;
+      height: auto;
+    }
+
+    & .p-paginator-current,
+    & .p-paginator-first,
+    & .p-paginator-prev,
+    & .p-paginator-next,
+    & .p-paginator-last {
+      color: $tbody-color;
+    }
+
+    & .p-paginator-first,
+    & .p-paginator-prev,
+    & .p-paginator-next,
+    & .p-paginator-last {
+      border-radius: 50% !important;
+      height: 28px;
+      width: 28px;
+      min-width: initial;
+
+      &:hover {
+        background-color: var(--main-bg-blue-light);
+        color: var(--main-text-white);
+      }
+    }
+
+    & .p-paginator-pages {
+      display: flex;
+      gap: 4px;
+    }
+
+    &.p-paginator-pages,
+    & .p-paginator-page {
+      border-radius: 50% !important;
+      transition: none;
+      min-width: 24px;
+      height: 24px;
+      font-size: inherit;
+      font-family: $fontRoboto;
+
+      &:hover {
+        background-color: var(--main-bg-blue-light);
+        color: var(--main-text-white);
+      }
+
+      &.p-highlight {
+        background-color: var(--main-bg-blue);
+        color: var(--main-text-white);
+      }
+    }
+
+    &-bottom {
+      padding: 4px 1rem;
+      background-color: $paginator-background;
+    }
+  }
+
+  .p-dropdown {
+    font-size: $font-size-paginator;
+    background-color: transparent;
+    border: none;
+    font-family: $fontRoboto;
+    display: flex;
+    align-items: center;
+    height: auto;
+
+    & .p-inputtext {
+      font-size: $font-size-paginator;
+      font-family: $fontRoboto;
+      padding: 6px 0 6px 6px;
+    }
+
+    &-label {
+      font-size: $font-size-paginator;
+      font-family: inherit;
+    }
+
+    &:not([disabled]) {
+      box-shadow: none;
+    }
+
+    &-panel {
+      & .p-dropdown-items {
+        font-size: $font-size-paginator - 2;
+        font-family: $fontRoboto;
+        margin-right: 1px;
+        padding: 0;
+        margin-bottom: 0;
+
+        &-wrapper {
+          margin-right: 1px;
+          color: red;
+
+          @extend %scrol-v;
+        }
+
+        & .p-dropdown-item {
+          &.p-focus {
+            background-color: var(--main-bg-white);
+          }
+
+          &.p-highlight {
+            background-color: var(--main-bg-blue);
+            color: var(--main-text-white);
+          }
+
+          &:hover {
+            background-color: var(--main-bg-blue-light);
+            color: var(--main-text-white);
+          }
+        }
+      }
+
+      // & .p-dropdown-items-wrapper {
+      // }
+    }
+  }
+}

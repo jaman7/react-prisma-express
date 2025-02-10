@@ -1,0 +1,15 @@
+.p-tooltip {
+  &-text {
+    box-shadow: none;
+    background-color: var(--main-bg-page);
+    color: var(--main-text-secondary);
+    font-size: 14px;
+    padding: 4px;
+  }
+
+  &-top {
+    & .p-tooltip-arrow {
+      border-top-color: var(--main-bg-page);
+    }
+  }
+}

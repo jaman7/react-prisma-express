@@ -1,38 +1,43 @@
 {
   "compilerOptions": {
     "baseUrl": "./src",
-    "target": "ES2022",
+    "paths": {
+      "@/*": [
+        "*"
+      ],
+    },
     "useDefineForClassFields": true,
     "lib": [
-      "ES2020",
+      "ES2022",
       "DOM",
       "DOM.Iterable"
     ],
-    "module": "ESNext",
+    "target": "ES2022",
+    "module": "ES2022",
     "skipLibCheck": true,
-    /* Bundler mode */
     "moduleResolution": "node",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    /* Linting */
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    // "noUnusedLocals": true,
+    // "noUnusedParameters": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
     "noFallthroughCasesInSwitch": true,
     "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": [
     "src",
     ".eslintrc.cjs",
-    ".vite.config.ts"
+    "vite.config.ts"
   ],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
+  "exclude": [
+    "node_modules",
+    "dist"
   ]
 }

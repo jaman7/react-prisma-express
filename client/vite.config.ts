@@ -1,36 +1,28 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import sass from 'sass';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import svgr from 'vite-plugin-svgr';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import checker from 'vite-plugin-checker';
 
 export default defineConfig({
   plugins: [
-    react({
-      babel: {
-        plugins: [
-          ['@babel/plugin-proposal-decorators', { legacy: true }],
-          ['@babel/plugin-transform-class-properties', { loose: true }],
-        ],
-      },
-    }),
+    react(),
     tsconfigPaths(),
-    svgr({ include: '**/*.svgr.svg' }),
+    svgr(),
+    checker({
+      typescript: true,
+    }),
   ],
   css: {
     preprocessorOptions: {
       scss: {
-        implementation: sass,
+        quietDeps: true,
+        api: 'modern-compiler',
+        silenceDeprecations: ['mixed-decls', 'color-functions', 'global-builtin', 'import'],
       },
     },
   },
   build: {
     target: 'esnext',
-  },
-  define: {
-    'process.env': process.env,
   },
 });

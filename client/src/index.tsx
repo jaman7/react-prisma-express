@@ -1,16 +1,19 @@
 import { createRoot } from 'react-dom/client';
-import App from 'App';
+import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import store from './store/store';
 import { PrimeReactProvider } from 'primereact/api';
-import '../assets/scss/main.scss';
+import store from './store/store';
+import App from 'App';
+import '@/assets/scss/main.scss';
 
 const container = document.getElementById('app');
 const root = createRoot(container!);
 root.render(
   <Provider store={store}>
     <PrimeReactProvider>
-      <App />
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
     </PrimeReactProvider>
   </Provider>
 );

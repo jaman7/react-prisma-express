@@ -1,8 +1,10 @@
 export enum ButtonsTranslate {
-  EDIT = 'buttons.ddit',
-  DELETE = 'buttons.delete',
-  CANCEL = 'buttons.cancel',
-  SAVE = 'buttons.save',
+  EDIT = 'common.buttons.edit',
+  DELETE = 'common.buttons.delete',
+  CANCEL = 'common.buttons.cancel',
+  SAVE = 'common.buttons.save',
+  ADD = 'common.buttons.add',
+  VIEW = 'common.buttons.view',
 }
 
 export enum ButtonsKeys {

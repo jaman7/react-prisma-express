@@ -1,0 +1,53 @@
+%shared-box-shadow {
+  box-shadow: 0 1px 3px 0 var(--main-shadow-primary-color) !important;
+}
+
+%scrol-v {
+  &::-webkit-scrollbar {
+    width: 14px;
+    background: var(--main-text-white);
+    border-radius: 8px;
+
+    &-track {
+      background: var(--main-text-white);
+      border-radius: 8px;
+    }
+
+    &-thumb {
+      background: var(--main-bg-blue);
+      border-radius: 8px;
+      border: 2px solid var(--main-text-white);
+      min-height: 100px;
+
+      &:hover {
+        background: var(--main-bg-blue-light);
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+%scrol-h {
+  &::-webkit-scrollbar {
+    height: 12px;
+    background: var(--main-text-white);
+    border-radius: 8px;
+
+    &-track {
+      background: var(--main-text-white);
+      border-radius: 8px;
+    }
+
+    &-thumb {
+      background: var(--main-bg-blue);
+      border-radius: 8px;
+      border: 2px solid var(--main-text-white);
+      min-width: 100px;
+
+      &:hover {
+        background: var(--main-bg-blue-light);
+        cursor: pointer;
+      }
+    }
+  }
+}

@@ -1,20 +1,9 @@
-import { NextFunction, Request, Response } from "express";
-import AppError from "../utils/appError";
+import { NextFunction, Request, Response } from 'express';
+import AppError from '@/utils/appError';
 
-export const requireUser = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const user = res.locals.user;
-    if (!user) {
-      return next(
-        new AppError(401, `Session has expired or user doesn't exist`)
-      );
-    }
-    next();
-  } catch (err: any) {
-    next(err);
+export const requireUser = (req: Request, res: Response, next: NextFunction) => {
+  if (!res.locals.user) {
+    return next(new AppError(401, 'Session expired or user not authenticated'));
   }
+  next();
 };

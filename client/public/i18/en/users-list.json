@@ -1,0 +1,37 @@
+{
+  "table": {
+    "name": "Name",
+    "lastName": "Last name",
+    "email": "Email",
+    "password": "Password",
+    "passwordConfirm": "<PASSWORD>",
+    "role": "Role",
+    "title": "Title",
+    "phone": "Phone",
+    "location": "Location"
+  },
+  "errors": {
+    "failUpdate": "Failed to update account",
+    "failReset": "Failed to reset password"
+  },
+  "info": {
+    "successResetPass": "Check your inbox for further instructions"
+  },
+  "button": {
+    "view": "Edit {{value}} profile",
+    "finish": "Finish",
+    "reset": "Reset Password"
+  },
+  "modal": {
+    "add": "Add User - {{value}}",
+    "edit": "Edit user - {{value}}",
+    "view": "View user - {{value}}",
+    "name": "Name",
+    "email": "Email",
+    "lastName": "Last name",
+    "title": "Title",
+    "phone": "Phone",
+    "location": "Location",
+    "password": "Password"
+  }
+}

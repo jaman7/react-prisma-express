@@ -1,108 +1,71 @@
-import { FormikProps } from 'formik';
-import { Dispatch, SetStateAction, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useMemo } from 'react';
+import { IFormElements, IFormElementsEnum } from './FormElements.model';
+import { Controller, useFormContext } from 'react-hook-form';
 import Input from '../input/Input';
-import { IInput } from '../input/input.model';
 import Select from '../select/Select';
-import { ISelect } from '../select/Select.model';
-import { FormCellConfigDefault, IFormElements } from './FormElements.model';
-import { ICheckbox } from '../checkbox/CheckboxComponent.model';
-import CheckboxComponent from '../checkbox/CheckboxComponent';
-import Validator from '../Validator';
+import { useTranslation } from 'react-i18next';
+import CheckboxMain from '../checkbox/CheckboxMain';
+import DateTimePicker from '../date-time-picker/DateTimePicker';
+import classNames from 'classnames';
+import TextArea from '../textarea/TextArea';
+import TextEditor from '../text-editor/TextEditor';
 
 interface IProps {
-  formControl?: any;
-  formControlName?: string;
+  formControlName: string;
   config?: IFormElements;
-  formik?: FormikProps<any>;
-  valueChange?: Dispatch<SetStateAction<any>>;
-  [name: string]: any;
 }
 
-const FormCell = (props: IProps) => {
+const { SELECT, CHECKBOX, DATETIME, TEXTAREA, TEXT, NUMBER, PASSWORD, SEARCH, RANGE, TEXT_EDITOR } = IFormElementsEnum;
+
+const FormElements = ({ formControlName, config }: IProps) => {
   const { t } = useTranslation();
-  const { config, formControlName, formik, valueChange } = props || {};
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext();
+  const { formCellType, styleClass, header } = config || {};
+  const isCheckbox = formCellType === CHECKBOX;
 
-  const formCellConfig = useMemo(() => ({ ...FormCellConfigDefault(), ...config }), [config, formControlName]);
-
-  const itemsConfig = (data: IInput): Partial<IInput> => {
-    const { formCellType } = data;
-    const dataTmp: Partial<IInput> = data;
-
-    switch (formCellType) {
-      case 'input':
-        dataTmp.type = 'text';
-        break;
-      case 'input-number':
-        dataTmp.type = 'number';
-        break;
-      case 'input-range':
-        dataTmp.type = 'range';
-        break;
-      case 'input-switch':
-        dataTmp.type = 'switch';
-        break;
-      case 'input-password':
-        dataTmp.type = 'password';
-        break;
-      default:
-        break;
-    }
-    return dataTmp;
-  };
-
-  const { formCellType, header, isHeader, placeholder, formCellClass } = formCellConfig || {};
-
-  const headerElement: JSX.Element = useMemo(
-    () => (isHeader ? <span className="label">{t(header as string)}</span> : <></>),
-    [isHeader, header]
+  const elementMap = useMemo(
+    () => ({
+      [TEXT]: Input,
+      [NUMBER]: Input,
+      [PASSWORD]: Input,
+      [SEARCH]: Input,
+      [RANGE]: Input,
+      [SELECT]: Select,
+      [CHECKBOX]: CheckboxMain,
+      [DATETIME]: DateTimePicker,
+      [TEXTAREA]: TextArea,
+      [TEXT_EDITOR]: TextEditor,
+    }),
+    []
   );
 
-  const checboxLabel: JSX.Element = useMemo(
-    () => (formCellType === 'checkbox' ? <span className="label">{t(placeholder as string)}</span> : <></>),
-    [formCellType, placeholder]
-  );
+  const Element = elementMap[formCellType as keyof typeof elementMap];
 
-  const formTypes = (): JSX.Element | JSX.Element[] => {
-    switch (formCellConfig?.formCellType) {
-      case 'input':
-      case 'input-number':
-      case 'input-range':
-      case 'input-switch':
-      case 'input-password':
-        return (
-          <Input
-            formik={formik}
-            valueChange={valueChange}
-            formControlName={formControlName}
-            config={itemsConfig?.(formCellConfig as IInput)}
-          />
-        );
-      case 'select':
-        return <Select formik={formik} valueChange={valueChange} formControlName={formControlName} config={formCellConfig as ISelect} />;
-      case 'checkbox':
-        return (
-          <CheckboxComponent
-            formik={formik}
-            valueChange={valueChange}
-            formControlName={formControlName}
-            config={formCellConfig as ICheckbox}
-          />
-        );
-      default:
-        return <></>;
-    }
-  };
+  const containerClass = classNames('d-block py-1', styleClass, {
+    'd-flex align-items-center justify-content-end flex-row-reverse gap-2': isCheckbox,
+  });
 
   return (
-    <div className={`form-cell-component ${formCellClass}`}>
-      {headerElement}
-      {formTypes()}
-      {checboxLabel}
-
-      <Validator formName={formControlName} formik={formik} />
+    <div className={containerClass}>
+      {header && (
+        <label className="text-secondary text-sm" htmlFor={formControlName}>
+          {t(header)}
+        </label>
+      )}
+      {Element && (
+        <Controller
+          name={formControlName}
+          control={control}
+          render={({ field }) => (
+            <Element {...field} config={config as Partial<IFormElements>} error={errors[formControlName]?.message as string} />
+          )}
+        />
+      )}
     </div>
   );
 };
 
-export default FormCell;
+export default FormElements;

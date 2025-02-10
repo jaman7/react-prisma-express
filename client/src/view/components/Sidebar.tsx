@@ -1,120 +1,136 @@
-import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { IBoard } from 'store/data.model';
-import { IRootState } from 'store/store';
-import Button from 'shared/components/Button';
-import { MdKeyboardDoubleArrowRight, MdKeyboardDoubleArrowLeft } from 'react-icons/md';
-import { MODAL_TYPE, UsersTYpe } from 'shared';
-import { v4 as uuidv4 } from 'uuid';
-import LazyImage from 'shared/components/LazyImage';
-import { NavLink, useNavigate } from 'react-router-dom';
-import cx from 'classnames';
-import dataSlice from 'store/dataSlice';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import classNames from 'classnames';
 import { PiUsers } from 'react-icons/pi';
 import { GoProjectSymlink } from 'react-icons/go';
-import { useAuth } from 'core/auth/userAuth';
+import LazyImage from '@/shared/components/LazyImage';
+import { useDispatch, useSelector } from 'react-redux';
+import { IRootState } from '@/store/store';
+import { UsersTYpe } from '@/shared/enums';
+import { useAuth } from '@/core/auth/userAuth';
+import dataSlice from '@/store/dataSlice';
+import Button, { ButtonVariant } from '@/shared/components/button/Button';
+import CaretIcon from '@/shared/components/icons/CaretIcon';
+import { ReactNode } from 'react';
+import { Tooltip } from 'primereact/tooltip';
+import { useTranslation } from 'react-i18next';
 
 const { setIsSideBarOpen } = dataSlice.actions;
-const { ADD } = MODAL_TYPE;
 
-const Sidebar = () => {
-  const [isOpen, setOpen] = useState(false);
-  // const [isBoardModalOpen, setIsBoardModalOpen] = useState<boolean>(false);
-  const dispatch = useDispatch();
-  const boards: IBoard[] = useSelector((state: IRootState) => state?.dataSlice?.boards ?? []);
-  const isAdmin: boolean = useSelector((state: IRootState) => state?.dataSlice?.user?.role === 'ADMIN') as boolean;
+const Sidebar: React.FC = () => {
   const isSideBarOpen = useSelector((state: IRootState) => state?.dataSlice.isSideBarOpen);
+  const dicts = useSelector((state: IRootState) => state?.dataSlice.dict);
+  const { user = {}, setActiveBoard } = useAuth() || {};
+  const { t } = useTranslation();
   const navigate = useNavigate();
-  const { user = {} } = useAuth() || {};
+  const location = useLocation();
+  const dispatch = useDispatch();
 
   const handleRedirect = (path: string) => {
     navigate(path);
   };
 
-  const handleSideBar = () => {
+  const handleSideBar = (): void => {
     dispatch(setIsSideBarOpen(!isSideBarOpen));
+  };
+
+  const handleBoard = async (id: string, isActive = true) => {
+    console.log(id);
+    if (!isActive) await setActiveBoard?.(id);
+    if (location.pathname !== '/') {
+      navigate('/');
+    }
   };
 
   const menuData = [
     {
-      name: 'Manage',
-      isHeading: true,
-    },
-    {
       name: 'Projects lists',
-      icon: <GoProjectSymlink />,
+      icon: 'pi pi-folder',
       to: `/projects`,
     },
     {
       name: 'Users list',
-      icon: <PiUsers />,
+      icon: 'pi pi-users',
       to: `/users-list`,
     },
   ];
 
-  // const renderSideMenu = (): JSX.Element | JSX.Element[] | undefined => {
-  //   return boards?.map((item, index) => (
-  //     <li
-  //       role="presentation"
-  //       key={uuidv4()}
-  //       className={`item ${item.isActive ? 'active' : ''}`}
-  //       onClick={() => {
-  //         dispatch(boardsSlice?.actions?.setBoardActive?.({ index }));
-  //       }}
-  //     >
-  //       <BoardIcon /> <span className="">{item?.name}</span>
-  //     </li>
-  //   ));
-  // };
-
-  // UsersTYpe
+  const renderSideMenu = (): ReactNode | ReactNode[] => {
+    return dicts?.boardsByUserDict?.map((item, index) => (
+      <li
+        role="presentation"
+        key={`boards-${index}`}
+        className={classNames('item target-tooltip', { active: item.id === user?.activeBoardId, close: !isSideBarOpen })}
+        onClick={() => handleBoard(item?.id as string, item.id === user?.activeBoardId)}
+        data-pr-tooltip={t(item.displayName || '')}
+        data-pr-classname="target-tooltip shadow-none"
+        data-pr-position="right"
+      >
+        <i className="pi pi-tags"></i>
+        <span className={classNames({ open: isSideBarOpen })}>{item?.displayName}</span>
+      </li>
+    ));
+  };
 
   return (
-    <>
-      <div className={cx('sidebar', { open: isSideBarOpen, close: !isSideBarOpen })}>
-        <div className="sidebar__logo" onClick={() => handleRedirect('/')}>
-          <LazyImage src="img/kanban.svg" alt="Logo" className="lazyload sidebar__logo--img" />
-          <h3 className={cx('sidebar__logo--title', { open: isSideBarOpen })}>Dashboard</h3>
-        </div>
+    <motion.aside
+      initial={{ width: isSideBarOpen ? 'auto' : 'auto' }}
+      animate={{ width: isSideBarOpen ? 'auto' : 'auto' }}
+      transition={{ duration: 0.5 }}
+      className={`siedebar bg-secondary p-2`}
+    >
+      <div className={classNames('logo-container', { close: !isSideBarOpen })} onClick={() => handleRedirect('/')}>
+        <LazyImage
+          src="img/kanban.svg"
+          alt="Logo"
+          className="logo-img target-tooltip"
+          data-pr-tooltip={t('Dashboard')}
+          data-pr-classname="target-tooltip shadow-none"
+          data-pr-position="right"
+        />
+        <h3 className={classNames('logo-text', { open: isSideBarOpen })}>Dashboard</h3>
+      </div>
 
-        {/* <h3 className="sidebar-title m-0 py-3">ALL BOARDS ({boards?.length})</h3>
-        <ul className="sidebar-menu">
-          {renderSideMenu()}
+      <div className={classNames('board-list', { close: !isSideBarOpen })}>
+        <h3 className={classNames('board-list-title', { open: isSideBarOpen })}>All boards ({dicts?.boardsByUserDict?.length})</h3>
+        <ul className="board-list-menu">{renderSideMenu()}</ul>
+      </div>
 
-          <li key={uuidv4()} role="presentation" className="item" onClick={() => setIsBoardModalOpen?.(true)}>
-            <BoardIcon />
-            <span className="">Create New Board</span>
-          </li>
-        </ul> */}
+      {user?.role === UsersTYpe.ADMIN ? (
+        <div className={classNames('manage-list', { close: !isSideBarOpen })}>
+          <h5 className={classNames('manage-list-title', { open: isSideBarOpen })}>Manage</h5>
 
-        {user?.role === UsersTYpe.ADMIN ? (
-          <ul className="sidebar-menu">
-            {menuData?.map(item => (
-              <li key={uuidv4()} className={cx('item', { 'item-head': item.isHeading })}>
-                {item.isHeading ? (
-                  <h5 className={cx('heading', { open: isSideBarOpen })}>Manage</h5>
-                ) : (
-                  <NavLink
-                    className={({ isActive, isPending }) => (isPending ? 'pending' : isActive ? 'active' : '')}
-                    to={item.to as string}
-                  >
-                    <i>{item.icon ?? <></>}</i> <span className={cx('title', { open: isSideBarOpen })}>{item.name}</span>
-                  </NavLink>
-                )}
+          <ul className={classNames('manage-list-menu', { open: isSideBarOpen })}>
+            {menuData?.map((item, i) => (
+              <li key={`menu-item-${i}`}>
+                <NavLink
+                  className={({ isActive, isPending }) =>
+                    classNames('item target-tooltip', {
+                      pending: isPending,
+                      active: isActive,
+                      close: !isSideBarOpen,
+                    })
+                  }
+                  to={item.to as string}
+                  data-pr-tooltip={t(item.name || '')}
+                  data-pr-classname="target-tooltip shadow-none"
+                  data-pr-position="right"
+                >
+                  <i className={item.icon}></i>
+                  <span className={classNames({ open: isSideBarOpen })}>{item.name}</span>
+                </NavLink>
               </li>
             ))}
           </ul>
-        ) : (
-          <></>
-        )}
+        </div>
+      ) : null}
 
-        <Button handleClick={() => handleSideBar()}>
-          {isSideBarOpen ? <MdKeyboardDoubleArrowLeft /> : <MdKeyboardDoubleArrowRight />}
-          {isSideBarOpen && <span className="ms-1 line-height">Hide Sidebar</span>}
-        </Button>
-      </div>
-      {/* {isBoardModalOpen && <AddEditBoardModal type={ADD} isBoardModalOpen={isBoardModalOpen} setIsBoardModalOpen={setIsBoardModalOpen} />} */}
-    </>
+      <Button variant={ButtonVariant.ROUND} size="xs" className="toggler" handleClick={handleSideBar} ariaLabel="Toggle Sidebar">
+        <CaretIcon className={`icon ${isSideBarOpen ? 'open' : ''}`} />
+      </Button>
+
+      <Tooltip target=".target-tooltip" autoHide={true} />
+    </motion.aside>
   );
 };
 

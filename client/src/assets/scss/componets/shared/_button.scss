@@ -1,0 +1,67 @@
+%btn-normal-radius {
+  border-radius: 8px;
+}
+
+.button-component {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: all 250ms ease-in-out;
+  outline: none;
+  font-weight: 500;
+
+  &.primary {
+    background-color: var(--main-button-primary-bg);
+    color: var(--main-text-white);
+    border: 1px solid transparent;
+
+    @extend %btn-normal-radius;
+
+    &:hover {
+      background-color: var(--main-bg-primary);
+      color: var(--main-text-primary);
+      border: 1px solid var(--main-border-primary);
+    }
+  }
+
+  &.secondary {
+    color: var(--main-text-primary);
+    border: 1px solid var(--main-border-primary);
+    background-color: var(--main-bg-white);
+
+    @extend %btn-normal-radius;
+
+    &:hover {
+      background-color: var(--main-button-primary-bg);
+      color: var(--main-text-white);
+    }
+  }
+
+  &.tertiary {
+    color: var(--main-text-primary);
+    border: 1px solid var(--main-button-tertiary-border);
+    background-color: var(--main-bg-primary);
+
+    @extend %btn-normal-radius;
+
+    &:hover {
+      background-color: var(--main-button-primary-bg);
+      color: var(--main-text-white);
+    }
+  }
+
+  &.round {
+    background-color: var(--main-bg-secondary);
+    color: var(--main-text-primary);
+    border: none;
+    border-radius: 50%;
+
+    @extend %shared-box-shadow;
+
+    &:hover {
+      background-color: var(--main-button-primary-bg);
+      color: var(--main-text-white);
+    }
+  }
+}

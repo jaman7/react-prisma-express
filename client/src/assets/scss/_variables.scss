@@ -1,0 +1,59 @@
+// ***********************************
+// VARIABLES
+// ***********************************
+
+$colorPrimary: #364a63;
+$colorWhite: #fff !default;
+$colorGray: #f7f7f7 !default;
+$colorDarkGray: #b3a4a4 !default;
+$colorLightGrayishBlue: #f5f6fa !default;
+$colorBlue: #0971fe !default;
+$colorLightBlue: #3a8dfe !default;
+$colorDarkBlue: #0860d8 !default;
+$colorDesaDarkBlue: #6e82a5 !default;
+$colorRed: #f00 !default;
+$shadowPrimaryColor: rgba($colorGray, 20%);
+$shadowDarkColor: rgba($colorGray, 60%);
+$fontRoboto: "Roboto", sans-serif;
+$fontBodySize: 14px !default;
+$fontBtnSize: 14px !default;
+$fontSizeDefault: 14px;
+
+// =======================
+:root {
+  --main-font-roboto: "Roboto", sans-serif;
+
+  /* Background Colors */
+  --main-bg-white: #fff; /* Colors/Background/bg-primary */
+  --main-bg-secondary: #f9fafb; /* Colors/Background/bg-secondary */
+  --main-bg-page: #f5f5f5; /* General page background color */
+  --main-bg-blue: #0971fe;
+  --main-bg-blue-light: #7daef1;
+  --main-bg-gray: #d1d5db;
+  --main-bg-disabled: #f5f5f5;
+
+  /* Text Colors */
+  --main-text-white: #fff; /* Colors/Text/text-primary (900) */
+  --main-text-primary: #101828; /* Colors/Text/text-primary (900) */
+  --main-text-secondary: #344054; /* Colors/Text/text-secondary (700) */
+  --main-text-tertiary: #475467; /* Colors/Text/text-tertiary (600) */
+  --main-text-placeholder: #667085; /* Placeholder color for forms/inputs */
+  --main-text-blue: #0971fe;
+  --main-color-red: #f00;
+
+  /* Button Colors */
+  --main-button-primary-bg: #0971fe; /* Background color for primary buttons */
+  --main-button-primary-border: #7f56d9; /* Border color for primary buttons */
+  --main-button-tertiary-color: #6941c6; /* Text color for secondary buttons */
+  --main-button-tertiary-border: #d6bbfb; /* Border color for secondary buttons */
+  --main-button-secondary-color: #344054; /* Text color for secondary buttons */
+
+  /* Border Colors */
+  --main-border-primary: #d0d5dd; /* Border color for buttons and main forms */
+  --main-border-secondary: #eaecf0; /* Border color for titles, forms, and menu items */
+  --main-border-blue: #0971fe;
+
+  /* Miscellaneous */
+  --main-link-color: #475467; /* Color for <a> tags */
+  --main-shadow-primary-color: rgb(0 0 0 / 15%);
+}

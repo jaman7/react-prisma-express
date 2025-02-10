@@ -8,71 +8,127 @@ datasource db {
 }
 
 model User {
-  id               String        @id @default(uuid())
-  email            String        @unique
-  name             String        @db.VarChar(255)
+  id               String          @id @default(uuid())
+  email            String          @unique
+  name             String          @db.VarChar(255)
   lastName         String?
   image            String?
-  verified         Boolean?      @default(false)
-  verificationCode String?       @unique @db.Text
+  verified         Boolean?        @default(false)
+  verificationCode String?         @unique @db.Text
   password         String
   title            String?
   phone            String?
   location         String?
-  role             Role          @default(USER)
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-  boards           Board[]       @relation("BoardUsers")
-  BoardOnUser      BoardOnUser[]
+  role             Role            @default(USER)
+  isDeleted        Boolean         @default(false)
+  deletedAt        DateTime?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  createdBy        String?
+  updatedBy        String?
+  activeBoardId    String?
+  projects         ProjectOnUser[] // Relacja wielu do wielu
+  tasks            Task[] // Zadania przypisane użytkownikowi
+  Notification     Notification[]
+}
 
-  @@unique([email, verificationCode])
-  @@index([email, verificationCode])
-  @@map(name: "users")
+model Project {
+  id          String          @id @default(uuid())
+  name        String
+  description String?
+  isActive    Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  users       ProjectOnUser[] // Relacja wielu do wielu
+  boards      Board[] // Każdy projekt ma wiele tablic
+}
+
+model ProjectOnUser {
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId  String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  role       String? // Rola użytkownika w projekcie, np. "Owner", "Developer"
+  assignedAt DateTime @default(now())
+
+  @@id([projectId, userId]) // Unikalność pary użytkownik-projekt
 }
 
 model Board {
-  id          String        @id @default(uuid())
-  name        String
-  isActive    Boolean       @default(false)
-  columns     Column[]
-  tasks       Task[]
-  statusId    Int
-  users       User[]        @relation("BoardUsers")
-  BoardOnUser BoardOnUser[]
-}
-
-model BoardOnUser {
-  user       User     @relation(fields: [userId], references: [id])
-  userId     String
-  board      Board    @relation(fields: [boardId], references: [id])
-  boardId    String
-  assignedAt DateTime @default(now())
-  assignedBy String
-
-  @@id([userId, boardId])
+  id        String   @id @default(uuid())
+  name      String
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  columns   Column[] // Relacja z kolumnami
+  tasks     Task[] // Zadania w tablicy
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Column {
   id       String @id @default(uuid())
   name     String
+  position Int // Pozycja kolumny w tablicy
   boardId  String
-  position Int
   board    Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  tasks    Task[] // Zadania w kolumnie
+  status   Status // Status kolumny
 }
 
 model Task {
-  id             String  @id @default(uuid())
-  boardId        String
-  title          String
-  content        String?
-  status         Int
-  position       Int
-  taskIdentifier String
-  userId         Int
-  board          Board   @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  id           String         @id @default(uuid())
+  title        String
+  description  String?
+  position     Int // Pozycja zadania w kolumnie
+  columnId     String
+  column       Column         @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  boardId      String
+  board        Board          @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  assignedTo   User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId       String?
+  status       Status // Status zadania
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  history      TaskHistory[]
+  Notification Notification[]
+}
+
+model TaskHistory {
+  id        String   @id @default(uuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  action    String // Typ akcji, np. UPDATE, ASSIGN
+  field     String // Pole, które zostało zmienione
+  oldValue  String? // Poprzednia wartość
+  newValue  String? // Nowa wartość
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  type      String
+  message   String
+  createdAt DateTime @default(now())
 }
 
 enum Role {
   USER
   ADMIN
+  OWNER
+  DEVELOPER
+  TESTER
+}
+
+enum Status {
+  TO_DO
+  IN_PROGRESS
+  CR
+  READY_FOR_TEST
+  TESTING
+  DONE
+  BLOCKED
 }

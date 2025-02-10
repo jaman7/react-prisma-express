@@ -1,121 +1,127 @@
-import { FormikProps } from 'formik';
-import { InputSwitch, InputSwitchChangeEvent } from 'primereact/inputswitch';
-import { classNames } from 'primereact/utils';
-import { ChangeEvent, useEffect, useState } from 'react';
+import React, { forwardRef, useEffect, useMemo, useRef } from 'react';
+import { IInput, inputConfigDefault } from './input.model';
+import classNames from 'classnames';
+import Validator from '../validator/Validator';
 import { useTranslation } from 'react-i18next';
 import { FaMinus, FaPlus } from 'react-icons/fa';
-import { IInput, inputConfigDefault } from './input.model';
-import { InputType } from './input.types';
-import Button from '../Button';
-import { ifChanged, isNumeric, mathSubtraction, usePrevious } from 'shared/utils/helpers';
-
-const { RANGE, NUMBER, PASSWORD, SWITCH } = InputType;
+import { InputTypeEnum } from './input.types';
+import Button, { ButtonVariant } from '../button/Button';
+import { mathOperation } from '@/shared/utils/math-operaation';
 
 interface IProps {
-  config?: Partial<IInput>;
-  formik?: FormikProps<any>;
-  [name: string]: any;
+  name?: string;
+  config: Partial<IInput>;
+  value?: string | number;
+  onChange?: (value: string | number) => void;
+  error?: string | null | undefined;
+  touched?: boolean;
 }
 
-const Input = (props: IProps) => {
+const { RANGE, NUMBER, SEARCH } = InputTypeEnum;
+
+const Input = forwardRef<HTMLInputElement, IProps>(({ name, value, onChange, error, config }, ref) => {
   const { t } = useTranslation();
-  const { config, formControlName, formik } = props || {};
-  const value = formik?.values?.[formControlName] ?? null;
+  const inputConfig = useMemo(() => ({ ...inputConfigDefault(), ...config }), [config]);
 
-  const prevConfig = usePrevious({ config });
+  const { type, placeholder, disabled, min, max, step, disableBtnNumbers } = inputConfig;
 
-  const [inputConfig, setInputConfig] = useState<IInput>(inputConfigDefault());
-
-  const { type, placeholder, readonly, inputClass, maxLength, min = 0, max = 0, step = 0, disableBtnNumbers, disabled } = inputConfig || {};
-
-  useEffect(() => {
-    ifChanged(prevConfig?.config, config, () => {
-      setInputConfig({ ...inputConfigDefault(), ...config });
-    });
-  }, [config]);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const isTypeNumber = type === NUMBER && !disableBtnNumbers;
   const isTypeRange = type === RANGE && !disableBtnNumbers;
-  const isTypeSwitch = type === SWITCH && !disableBtnNumbers;
+  const isTypeSearch = type === SEARCH && !disableBtnNumbers;
 
-  const setChange = (e: ChangeEvent<HTMLInputElement> | InputSwitchChangeEvent) => {
-    formik?.setFieldValue?.(formControlName, isTypeNumber || isTypeRange ? +e.target.value : e.target.value);
-    e.preventDefault();
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange?.(e.target.value);
   };
 
-  const setStepNumberValue = (e: { preventDefault: () => void }, isIncrement: boolean): void => {
-    if (typeof value !== 'number' && isNumeric(value)) {
-      formik?.setFieldValue?.(formControlName, Number(value) ?? 0);
+  const handleStepChange = (isIncrement: boolean) => {
+    const newValue = mathOperation((value as number) ?? 0, step ?? 1, isIncrement);
+    console.log(newValue);
+    if (typeof newValue === 'number' && newValue >= ((min as number) ?? 0) && newValue <= ((max as number) ?? 100)) {
+      onChange?.(newValue);
     }
-
-    formik?.setFieldValue?.(formControlName, +mathSubtraction((value as number) ?? 0, step ?? 1, isIncrement));
-    if (typeof value === 'number') {
-      switch (true) {
-        case value > max:
-          formik?.setFieldValue?.(formControlName, max);
-          break;
-        case value < min:
-          formik?.setFieldValue?.(formControlName, min);
-          break;
-        default:
-          break;
-      }
-    }
-    e.preventDefault();
   };
 
-  const nameClass = `input-component ${isTypeRange ? 'input-component__range' : ''}`;
-  const isFormFieldInvalid = (name: string): boolean => !!(formik?.dirty && formik?.errors?.[name]);
+  const inputClasses = classNames('input-component__input', {
+    search: isTypeSearch,
+    range: isTypeRange,
+    number: isTypeNumber,
+    invalid: error && !disabled,
+    'cursor-not-allowed bg-disabled': disabled,
+  });
+
+  useEffect(() => {
+    if (type === RANGE && inputRef.current) {
+      const currentValue = Number(value) || 0;
+      const minValue = min ?? 0;
+      const maxValue = max ?? 100;
+      const progress = ((currentValue - minValue) / (maxValue - minValue)) * 100;
+      inputRef.current.style.setProperty('--progress-value', `${progress}%`);
+    }
+  }, [value, min, max, type]);
 
   return (
-    <>
-      <div className={nameClass}>
-        <div className={`input-component--content ${classNames({ invalid: isFormFieldInvalid(formControlName) })}`}>
-          {isTypeNumber ? (
-            <Button handleClick={(e: any) => setStepNumberValue(e, false)}>
-              <i className="aa">
-                <FaMinus />
-              </i>
-            </Button>
-          ) : (
-            <></>
-          )}
+    <div className="input-component">
+      <div className="input-component__container">
+        {isTypeNumber && !disabled ? (
+          <Button
+            variant={ButtonVariant.PRIMARY}
+            size="xs"
+            className="btn-minus"
+            aria-label="Decrease"
+            handleClick={() => handleStepChange(false)}
+          >
+            <i>
+              <FaMinus />
+            </i>
+          </Button>
+        ) : (
+          <></>
+        )}
 
-          {isTypeSwitch ? (
-            <InputSwitch id={formControlName ?? ''} name={formControlName ?? ''} checked={value} onChange={e => setChange(e)} />
-          ) : (
-            <input
-              id={formControlName ?? ''}
-              name={formControlName ?? ''}
-              className={`input ${inputClass ?? ''} ${classNames({ invalid: isFormFieldInvalid(formControlName) })}`}
-              type={type ?? 'text'}
-              min={`${min ?? 0}`}
-              max={`${max ?? 1000}`}
-              value={value ?? ''}
-              step={step}
-              placeholder={placeholder ? t(placeholder ?? '') : ''}
-              readOnly={readonly}
-              autoComplete="off"
-              maxLength={maxLength}
-              onChange={e => setChange(e)}
-              disabled={disabled}
-            />
-          )}
-          {isTypeNumber ? (
-            <Button handleClick={(e: any) => setStepNumberValue(e, true)}>
-              <i>
-                <FaPlus />
-              </i>
-            </Button>
-          ) : (
-            <></>
-          )}
-        </div>
+        <input
+          id={name}
+          name={name}
+          type={type ?? 'text'}
+          placeholder={placeholder ? t(placeholder) : ''}
+          value={value ?? ''}
+          min={min ?? 0}
+          max={max ?? 100}
+          step={step}
+          disabled={disabled}
+          onChange={handleChange}
+          className={inputClasses}
+          aria-invalid={!!error}
+          aria-describedby={error ? `${name}-error` : undefined}
+          autoComplete="off"
+          ref={(node) => {
+            inputRef.current = node;
+            if (ref && typeof ref === 'function') ref(node);
+          }}
+        />
+        {isTypeSearch && <i className="icon-search pi pi-search"></i>}
 
-        {isTypeRange ? <span className="input-container__range--text">{value}</span> : <></>}
+        {isTypeNumber && !disabled ? (
+          <Button
+            variant={ButtonVariant.PRIMARY}
+            size="xs"
+            className="btn-plus"
+            aria-label="Increase"
+            handleClick={() => handleStepChange(true)}
+          >
+            <FaPlus />
+          </Button>
+        ) : (
+          <></>
+        )}
+
+        {isTypeRange ? <span className="range--text">{value}</span> : <></>}
       </div>
-    </>
+
+      {error && <Validator error={t(error)} />}
+    </div>
   );
-};
+});
 
 export default Input;
