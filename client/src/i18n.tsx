@@ -7,36 +7,31 @@ import HttpBackend from 'i18next-http-backend';
 import LocalStorageBackend from 'i18next-localstorage-backend';
 
 i18n
-  .use(ChainedBackend) // Use ChainedBackend
+  .use(ChainedBackend)
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
     fallbackLng: 'en',
-    supportedLngs: ['en', 'pl'], // Limit to only 'en' and 'pl'
+    supportedLngs: ['en', 'pl'],
     debug: false,
-    ns: ['common', 'projects'], // Add your namespaces here
+    ns: ['common', 'projects'],
     defaultNS: 'common',
     interpolation: {
       escapeValue: false,
     },
     detection: {
-      order: ['localStorage', 'navigator', 'htmlTag'], // Detect from localStorage first
-      caches: ['localStorage'], // Cache detected language in localStorage
+      order: ['localStorage', 'navigator', 'htmlTag'],
+      caches: ['localStorage'],
     },
     backend: {
-      backends: [
-        LocalStorageBackend, // Cache translations in localStorage
-        HttpBackend, // Fallback to HTTP if not in localStorage
-      ],
+      backends: [LocalStorageBackend, HttpBackend],
       backendOptions: [
         {
-          // Options for LocalStorageBackend
-          expirationTime: 7 * 24 * 60 * 60 * 1000, // Cache for 7 days
-          prefix: 'i18next_res_', // Optional prefix for localStorage keys
+          expirationTime: 7 * 24 * 60 * 60 * 1000,
+          prefix: 'i18next_res_',
         },
         {
-          // Options for HttpBackend
-          loadPath: '/i18/{{lng}}/{{ns}}.json', // Path to load translations
+          loadPath: '/i18/{{lng}}/{{ns}}.json',
         },
       ],
     },

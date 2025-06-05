@@ -1,41 +1,44 @@
-'use client';
-
 import { createContext, JSX, useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import { cookiesAuth, cookiesAuthRemove, encodeBase64, isBeforeRefreshTokenExpiration, isRefreshTokenExist } from './auth-helper';
-import { IAuth, IAuthUser, IUseAuth } from './auth.model';
-import HttpService from '@/core/http/http.service';
-import { useDispatch } from 'react-redux';
-import dataSlice from '@/store/dataSlice';
-import { fetchDictionary } from '@/store/actions/dictionaryActions';
-import { AppDispatch } from '@/store/store';
+import { useGlobalStore } from '@/store/useGlobalStore';
+import { useNavigate } from 'react-router-dom';
+import { IAuthPath } from '@/view/auth/auth.enum';
+import { initializeData } from '@/hooks/useInitializeData';
+import { IAuth, IAuthUser, IUseAuth } from '@/shared/model/auth';
+import { catchError, finalize, of, tap } from 'rxjs';
+import { updateActiveProjectIdHandler$ } from '@/shared/services/UserProject';
+import httpService from '@/core/http/http.service';
 
-const { clearStore, setIsLoading } = dataSlice.actions;
+const { PATH_LOGIN } = IAuthPath;
 
 export const AuthContext = createContext<IUseAuth | null>(null);
 
 const AuthProvider = ({ children }: { children?: JSX.Element | any }) => {
   const [user, setUser] = useState<IAuthUser | null>(null);
 
-  const httpService = new HttpService();
-  const dispatch = useDispatch<AppDispatch>();
+  const http = httpService;
   const timeBefore = 30000;
   const authCookies: IAuth | null = cookiesAuth() || null;
 
-  const fetchUser = async () => {
+  const { clearStore, setIsLoading } = useGlobalStore();
+  const navigate = useNavigate();
+
+  const fetchUser = async (): Promise<IAuthUser | null> => {
     try {
-      const userData: IAuthUser = await httpService.get('/api/users/me');
+      const userData: IAuthUser = await http.get('users/me');
       setUser(userData ?? null);
+      return userData ?? {};
     } catch (error) {
       console.error('Error fetching user:', error);
       cookiesAuthRemove();
+      return null;
     }
   };
 
   const login = async (email: string, password: string) => {
-    dispatch(setIsLoading(true));
     try {
-      const res: IAuth = await httpService.post('/api/auth/login', { email, password });
+      const res: IAuth = await http.post('auth/login', { email, password });
       const { accessToken, refreshToken, accessTokenExpiresAt, refreshTokenExpiresAt } = res ?? {};
       const data: IAuth = {
         accessToken,
@@ -46,25 +49,33 @@ const AuthProvider = ({ children }: { children?: JSX.Element | any }) => {
       Cookies.set('userInfo', encodeBase64(data), {
         expires: new Date(accessTokenExpiresAt?.toLocaleString() as string),
       });
-      fetchUser();
+      fetchUser().then((res) => {
+        if (res?.id) initializeData(res?.id);
+      });
     } catch (e) {
       console.error(e);
-    } finally {
-      dispatch(setIsLoading(false));
     }
   };
 
   const logout = async () => {
-    dispatch(setIsLoading(true));
     try {
-      await httpService.get('/api/auth/logout');
-      dispatch(clearStore());
+      await http.get('auth/logout');
+      clearStore();
       setUser(null);
       cookiesAuthRemove();
+      navigate(PATH_LOGIN);
     } catch (e) {
       console.error(e);
-    } finally {
-      dispatch(setIsLoading(false));
+    }
+  };
+
+  const signup = async (name: string, email: string, password: string, passwordConfirm: string): Promise<IAuthUser | null> => {
+    try {
+      const res: IAuthUser = await http.post('auth/signup', { name, email, password, passwordConfirm });
+      return { verificationCode: res?.verificationCode };
+    } catch (e) {
+      console.error(e);
+      return null;
     }
   };
 
@@ -78,7 +89,7 @@ const AuthProvider = ({ children }: { children?: JSX.Element | any }) => {
     }
 
     try {
-      const response: IAuth = await httpService.post('/api/auth/refresh', { refreshToken });
+      const response: IAuth = await http.post('auth/refresh', { refreshToken }, { ignoreLoader: 'true' });
       const { accessToken, refreshToken: newRefreshToken, accessTokenExpiresAt, refreshTokenExpiresAt } = response ?? {};
       const data: IAuth = {
         accessToken,
@@ -96,17 +107,24 @@ const AuthProvider = ({ children }: { children?: JSX.Element | any }) => {
     }
   };
 
-  const setActiveBoard = async (id: string) => {
-    dispatch(setIsLoading(true));
-    try {
-      const res: IAuthUser = await httpService.patch('/api/users/me/activeBoardId', { activeBoardId: id });
-      const { activeBoardId } = res ?? {};
-      setUser((prev) => ({ ...prev, activeBoardId }));
-    } catch (e) {
-      console.error(e);
-    } finally {
-      dispatch(setIsLoading(false));
-    }
+  const setActivProject = (id: string) => {
+    setIsLoading(true);
+    const subscription = updateActiveProjectIdHandler$(id)
+      .pipe(
+        tap((res) => {
+          const { activeProjectId } = res || {};
+          setUser((prev) => ({ ...prev, activeProjectId }));
+          setIsLoading(false);
+        }),
+        finalize(() => setIsLoading(false)),
+        catchError((error) => {
+          setIsLoading(false);
+          console.error('Failed to fetch suggestions.', error);
+          return of({});
+        })
+      )
+      .subscribe();
+    return () => subscription.unsubscribe();
   };
 
   useEffect(() => {
@@ -115,7 +133,9 @@ const AuthProvider = ({ children }: { children?: JSX.Element | any }) => {
     const cookieAuth = cookiesAuth() || {};
     if (user?.id && cookieAuth?.refreshTokenExpiresAt) {
       interval = setInterval(async () => {
-        if (isRefreshTokenExist() && isBeforeRefreshTokenExpiration(timeBefore)) await refreshToken();
+        if (isRefreshTokenExist() && isBeforeRefreshTokenExpiration(timeBefore * 3)) {
+          await refreshToken();
+        }
       }, timeBefore);
     } else {
       if (interval) clearInterval(interval);
@@ -128,25 +148,18 @@ const AuthProvider = ({ children }: { children?: JSX.Element | any }) => {
 
   useEffect(() => {
     const { refreshToken } = cookiesAuth() || {};
-    if (!user?.id && refreshToken) fetchUser();
+    if (!user?.id && refreshToken) {
+      fetchUser().then((res) => {
+        if (res?.id) initializeData(res?.id);
+      });
+    }
   }, []);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (user?.id) await dispatch(fetchDictionary(user.id));
-    };
-    fetchData();
-
-    const interval = setInterval(
-      async () => {
-        if (user?.id) dispatch(fetchDictionary(user.id));
-      },
-      30 * 60 * 1000
-    );
-    return () => clearInterval(interval);
-  }, [user?.id, dispatch]);
-
-  return <AuthContext.Provider value={{ auth: authCookies || {}, user, login, logout, setActiveBoard }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ auth: authCookies || {}, user, login, logout, signup, setActivProject }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export default AuthProvider;

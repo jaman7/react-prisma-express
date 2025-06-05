@@ -3,14 +3,13 @@ import DragIcon from '@/shared/components/icons/DragIcon';
 import LetteredAvatar from '@/shared/components/LetteredAvatar';
 import { DATE_TIME_FORMAT } from '@/shared/enums';
 import { IBoardTask } from '@/store/data.model';
-import { IRootState } from '@/store/store';
+import { useGlobalStore } from '@/store/useGlobalStore';
 import { UniqueIdentifier } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import classNames from 'classnames';
 import { format } from 'date-fns';
-import { memo, startTransition, useMemo } from 'react';
-import { useSelector } from 'react-redux';
+import { memo, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface IProps {
@@ -27,7 +26,7 @@ export interface TaskDragData {
 
 const TaskCard: React.FC<IProps> = ({ task, isOverlay }) => {
   const navigate = useNavigate();
-  const dict = useSelector((state: IRootState) => state?.dataSlice.dict);
+  const dict = useGlobalStore((state) => state.dictionary ?? {});
   const { setNodeRef, attributes, listeners, transform, transition, isDragging, setActivatorNodeRef } = useSortable({
     id: task.id as UniqueIdentifier,
     data: {
@@ -37,13 +36,17 @@ const TaskCard: React.FC<IProps> = ({ task, isOverlay }) => {
     attributes: {
       roleDescription: 'Task',
     },
+    transition: {
+      duration: 250, // milliseconds
+      easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+    },
   });
 
   const handleMoreClick = (taskId: string) => {
     navigate(`/boards/${task.boardId}/tasks/${taskId}`);
   };
 
-  const style = {
+  const styleBase = {
     transition,
     transform: CSS.Translate.toString(transform),
   } as React.CSSProperties;
@@ -54,8 +57,8 @@ const TaskCard: React.FC<IProps> = ({ task, isOverlay }) => {
   });
 
   const userName = useMemo(() => {
-    return dict?.users?.find((el) => el.id === task?.userId)?.displayName ?? '';
-  }, [task]);
+    return dict?.usersDict?.find((el) => el.id === task?.userId)?.displayName ?? '';
+  }, [task, dict?.usersDict]);
 
   const formattedCreatedAt = useMemo(() => {
     return task?.createdAt ? format(new Date(task.createdAt), DATE_TIME_FORMAT.FNS_DATE_TIME_NO_SEC) : 'N/A';
@@ -66,7 +69,7 @@ const TaskCard: React.FC<IProps> = ({ task, isOverlay }) => {
   }, [task?.updatedAt]);
 
   return (
-    <div ref={setNodeRef} style={style} className={taskCardClass}>
+    <div ref={setNodeRef} {...attributes} {...listeners} style={styleBase} className={taskCardClass}>
       <div className="task-header">
         <i ref={setActivatorNodeRef} {...attributes} {...listeners}>
           <DragIcon />
@@ -78,6 +81,7 @@ const TaskCard: React.FC<IProps> = ({ task, isOverlay }) => {
         <p className="date">createdAt: {formattedCreatedAt}</p>
         <p className="date">updatedAt: {formattedUpdatedAt}</p>
         <p className="status">{task.status}</p>
+        <p className="status">{task.id}</p>
       </div>
 
       <div className={classNames('task-footer', { 'justify-content-end': !userName })}>

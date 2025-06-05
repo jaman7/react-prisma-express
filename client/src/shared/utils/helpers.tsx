@@ -15,6 +15,15 @@ export const toCamelCase = (text: string): string => {
   return tmpText.substring(0, 1).toLowerCase() + tmpText.substring(1);
 };
 
+export const toSeoUrlCase = (text: string): string => {
+  return text
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+};
+
 export const arrayMove = (arr: any[], oldIndex: number, newIndex: number): any[] => {
   if (newIndex >= arr?.length) {
     var k = newIndex - arr?.length + 1;

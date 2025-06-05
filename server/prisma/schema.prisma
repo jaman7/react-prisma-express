@@ -1,0 +1,134 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String          @id @default(uuid())
+  email            String          @unique
+  name             String          @db.VarChar(255)
+  lastName         String?
+  image            String?
+  verified         Boolean?        @default(false)
+  verificationCode String?         @unique @db.Text
+  password         String
+  title            String?
+  phone            String?
+  location         String?
+  role             Role            @default(USER)
+  isDeleted        Boolean         @default(false)
+  deletedAt        DateTime?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  createdBy        String?
+  updatedBy        String?
+  activeProjectId  String?
+  projects         ProjectOnUser[]
+  tasks            Task[]
+  Notification     Notification[]
+}
+
+model Project {
+  id          String          @id @default(uuid())
+  name        String
+  description String?
+  isActive    Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  endAt       DateTime?
+  isArchive   Boolean         @default(false)
+  boardId     String          @unique
+  board       Board?
+  users       ProjectOnUser[]
+}
+
+model ProjectOnUser {
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId  String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  role       String?
+  assignedAt DateTime @default(now())
+
+  @@id([projectId, userId])
+}
+
+model Board {
+  id        String     @id @default(uuid())
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  projectId String?    @unique
+  project   Project?   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  columns   Column[]
+  tasks     Task[]
+  moveRules MoveRules?
+}
+
+model Column {
+  id       String @id @default(uuid())
+  name     String
+  position Int
+  boardId  String
+  board    Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  tasks    Task[]
+  status   String
+}
+
+model MoveRules {
+  id      String @id @default(uuid())
+  rules   Json
+  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  boardId String @unique
+}
+
+model Task {
+  id           String         @id @default(uuid())
+  title        String
+  description  String?
+  position     Int
+  columnId     String
+  column       Column         @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  boardId      String
+  board        Board          @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  assignedTo   User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId       String?
+  status       String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  history      TaskHistory[]
+  Notification Notification[]
+}
+
+model TaskHistory {
+  id        String   @id @default(uuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  action    String
+  field     String
+  oldValue  String?
+  newValue  String?
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  type      String
+  message   String
+  createdAt DateTime @default(now())
+}
+
+enum Role {
+  USER
+  ADMIN
+  OWNER
+  DEVELOPER
+  TESTER
+}

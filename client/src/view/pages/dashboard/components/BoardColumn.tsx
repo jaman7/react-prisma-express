@@ -16,10 +16,10 @@ export interface ColumnDragData {
 interface IBoardColumnProps {
   column: IBoardColumn;
   tasks: IBoardTask[];
-  isOverlay?: boolean;
+  isTarget?: boolean;
 }
 
-const BoardColumn: React.FC<IBoardColumnProps> = ({ column, tasks, isOverlay }) => {
+const BoardColumn: React.FC<IBoardColumnProps> = ({ column, tasks, isTarget }) => {
   const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({
     id: column.id as UniqueIdentifier,
     data: {
@@ -29,6 +29,10 @@ const BoardColumn: React.FC<IBoardColumnProps> = ({ column, tasks, isOverlay }) 
     attributes: {
       roleDescription: `Column: ${column.name}`,
     },
+    transition: {
+      duration: 250, // milliseconds
+      easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+    },
   });
 
   const style = {
@@ -36,14 +40,19 @@ const BoardColumn: React.FC<IBoardColumnProps> = ({ column, tasks, isOverlay }) 
     transform: CSS.Translate.toString(transform),
   } as React.CSSProperties;
 
+  const columnClass = classNames('column', {
+    'column-highlight': isTarget, // ✅ klasa CSS do podświetlenia
+  });
+
   const tasksIds = useMemo(() => {
     return tasks?.map((task) => task.id as UniqueIdentifier) ?? [];
   }, [tasks]);
 
   return (
-    <div ref={setNodeRef} style={style} className="column">
-      <div className="column-header p-2 d-flex">
+    <div ref={setNodeRef} {...attributes} {...listeners} style={style} className={columnClass}>
+      <div className="column-header p-2 d-flex flex-column">
         <span className="text-center w-100">{column.name}</span>
+        <span className="text-center w-100">{column.id}</span>
       </div>
       <div className="column-body">
         <SortableContext items={tasksIds}>
@@ -56,5 +65,4 @@ const BoardColumn: React.FC<IBoardColumnProps> = ({ column, tasks, isOverlay }) 
   );
 };
 
-// export default BoardColumn;
 export default memo(BoardColumn);

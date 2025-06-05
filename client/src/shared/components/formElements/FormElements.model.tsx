@@ -3,6 +3,9 @@ import { IDictType, ISelect, SelectType } from '../select/Select.model';
 import { ICheckbox } from '../checkbox/CheckboxMain.model';
 import { InputTypes } from '../input/input.types';
 import { IDateTimePicker } from '../date-time-picker/DateTimePicker.models';
+import { IFormSortableColumns } from '../FormSortableColumns/FormSortableColumns.model';
+import { ICheckboxMatrix } from '../CheckboxMatrix/CheckboxMatrix.model';
+import { IUserAssignEdit } from '../user-assign/UserAssignEdit.model';
 
 export type IFormElementsTypes =
   | 'select'
@@ -19,7 +22,10 @@ export type IFormElementsTypes =
   | 'input-password'
   | 'input-range'
   | 'textarea'
-  | 'text-editor';
+  | 'text-editor'
+  | 'sortable-columns'
+  | 'checkbox-matrix-column-rules'
+  | 'user-assign-edit-component';
 
 export enum IFormElementsEnum {
   SELECT = 'select',
@@ -32,9 +38,15 @@ export enum IFormElementsEnum {
   PASSWORD = 'input-password',
   RANGE = 'input-range',
   TEXT_EDITOR = 'text-editor',
+  SORTABLE_COLUMNS = 'sortable-columns',
+  CHECKBOX_MATRIX_COLUMN_RULES = 'checkbox-matrix-column-rules',
+  USER_ASSIGN_EDIT = 'user-assign-edit-component',
 }
 
-export type IFormElements = Omit<ISelect & IInput & ICheckbox & IDateTimePicker, 'type'> & {
+export type IFormElements = Omit<
+  ISelect & IInput & ICheckbox & IDateTimePicker & IFormSortableColumns & ICheckboxMatrix & IUserAssignEdit,
+  'type'
+> & {
   formControlName?: string;
   header?: string;
   isHeader?: boolean;

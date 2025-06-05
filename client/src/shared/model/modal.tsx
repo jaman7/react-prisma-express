@@ -1,9 +1,9 @@
 export type IModalType = 'ADD' | 'EDIT' | 'VIEW';
 
-export type IModalButtonsType = 'EDIT' | 'DELETE' | 'CANCEL' | 'SAVE' | 'VIEW';
+export type IModalButtonsType = 'EDIT' | 'DELETE' | 'CANCEL' | 'SAVE' | 'VIEW' | 'ASSIGN';
 
 export interface IModal {
-  id?: string;
+  id?: number | string;
   visible?: boolean;
   type?: IModalType;
 }

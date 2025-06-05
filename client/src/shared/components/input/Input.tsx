@@ -2,11 +2,11 @@ import React, { forwardRef, useEffect, useMemo, useRef } from 'react';
 import { IInput, inputConfigDefault } from './input.model';
 import classNames from 'classnames';
 import Validator from '../validator/Validator';
-import { useTranslation } from 'react-i18next';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 import { InputTypeEnum } from './input.types';
 import Button, { ButtonVariant } from '../button/Button';
 import { mathOperation } from '@/shared/utils/math-operaation';
+import { useFallbackTranslation } from '@/hooks/useFallbackTranslation';
 
 interface IProps {
   name?: string;
@@ -20,7 +20,7 @@ interface IProps {
 const { RANGE, NUMBER, SEARCH } = InputTypeEnum;
 
 const Input = forwardRef<HTMLInputElement, IProps>(({ name, value, onChange, error, config }, ref) => {
-  const { t } = useTranslation();
+  const { t } = useFallbackTranslation();
   const inputConfig = useMemo(() => ({ ...inputConfigDefault(), ...config }), [config]);
 
   const { type, placeholder, disabled, min, max, step, disableBtnNumbers } = inputConfig;

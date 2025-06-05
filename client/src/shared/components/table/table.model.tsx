@@ -1,9 +1,9 @@
 import { IModalButtonsType } from '@/shared/model';
 import { IDictType } from '../select/Select.model';
 import { ReactNode } from 'react';
-import { DataTableFilterMeta, DataTableFilterMetaData } from 'primereact/datatable';
+import { DataTableFilterMeta, DataTableFilterMetaData, DataTableValue } from 'primereact/datatable';
 
-export type ITableIconsType = 'VIEW' | 'EDIT' | 'DELETE';
+export type ITableIconsType = 'VIEW' | 'EDIT' | 'DELETE' | 'ASSIGN';
 
 export type ITableColumnsType = 'Text' | 'DateTime' | 'Checkbox' | 'Boolean' | 'UserList';
 
@@ -38,7 +38,7 @@ export interface ITableColumns {
 }
 
 export interface ITableButtonAction {
-  rowData?: unknown | object;
+  rowData?: DataTableValue;
   type?: IModalButtonsType;
 }
 

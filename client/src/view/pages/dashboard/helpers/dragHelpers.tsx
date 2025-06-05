@@ -14,6 +14,40 @@ const { Down, Right, Up, Left } = KeyboardCode;
 
 const directions: string[] = [Down, Right, Up, Left];
 
+const getFilteredContainers = (
+  droppableContainers: DroppableContainer[],
+  droppableRects: Map<UniqueIdentifier, DOMRect>,
+  active: Active, // Adjusted type
+  collisionRect: DOMRect,
+  code: KeyboardCode
+): DroppableContainer[] => {
+  return droppableContainers.filter((entry) => {
+    if (!entry || entry.disabled) return false;
+    const rect = droppableRects.get(entry.id);
+    if (!rect) return false;
+
+    const activeData = active?.data?.current;
+    const entryData = entry.data?.current;
+
+    if (entryData?.type === 'Column' && activeData?.type !== 'Column') {
+      return false;
+    }
+
+    switch (code) {
+      case Down:
+        return collisionRect.top < rect.top;
+      case Up:
+        return collisionRect.top > rect.top;
+      case Left:
+        return collisionRect.left >= rect.left + rect.width;
+      case Right:
+        return collisionRect.left + collisionRect.width <= rect.left;
+      default:
+        return false;
+    }
+  });
+};
+
 export const coordinateGetter: KeyboardCoordinateGetter = (
   event,
   { context: { active, droppableRects, droppableContainers, collisionRect } }
@@ -54,40 +88,6 @@ export const coordinateGetter: KeyboardCoordinateGetter = (
         y: newRect.top,
       }
     : undefined;
-};
-
-const getFilteredContainers = (
-  droppableContainers: DroppableContainer[],
-  droppableRects: Map<UniqueIdentifier, DOMRect>,
-  active: Active, // Adjusted type
-  collisionRect: DOMRect,
-  code: KeyboardCode
-): DroppableContainer[] => {
-  return droppableContainers.filter((entry) => {
-    if (!entry || entry.disabled) return false;
-    const rect = droppableRects.get(entry.id);
-    if (!rect) return false;
-
-    const activeData = active?.data?.current;
-    const entryData = entry.data?.current;
-
-    if (entryData?.type === 'Column' && activeData?.type !== 'Column') {
-      return false;
-    }
-
-    switch (code) {
-      case Down:
-        return collisionRect.top < rect.top;
-      case Up:
-        return collisionRect.top > rect.top;
-      case Left:
-        return collisionRect.left >= rect.left + rect.width;
-      case Right:
-        return collisionRect.left + collisionRect.width <= rect.left;
-      default:
-        return false;
-    }
-  });
 };
 
 export function hasDraggableData<T extends Active | Over>(

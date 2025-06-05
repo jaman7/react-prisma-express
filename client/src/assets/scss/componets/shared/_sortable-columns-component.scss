@@ -1,0 +1,65 @@
+.sortable-columns {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+
+  &__sortable {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+
+    &--item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.25rem;
+      border: 1px solid var(--main-border-primary);
+      border-radius: 8px;
+
+      &__input {
+        display: flex;
+        align-items: center;
+        background-color: var(--main-bg-white);
+        width: 100%;
+        border: 1px solid var(--main-border-primary);
+        border-radius: 0.35rem;
+        color: var(--main-text-primary);
+        font-size: 14px;
+        padding: 3px 8px;
+        outline: none;
+        box-shadow: none;
+        line-height: 1;
+
+        &::placeholder {
+          color: var(--main-text-placeholder);
+          font-size: 13px;
+        }
+
+        &:focus,
+        &:focus-visible,
+        &:focus-within {
+          border-color: var(--main-text-blue);
+        }
+
+        &.invalid {
+          border-color: var(--main-color-red);
+        }
+      }
+
+      &__value {
+        flex: 1;
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      &.disabled {
+        @extend %disabled;
+
+        &__value {
+          color: var(--main-text-placeholder);
+        }
+      }
+    }
+  }
+}

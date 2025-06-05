@@ -1,9 +1,9 @@
 import { Editor, EditorTextChangeEvent } from 'primereact/editor';
-import { ChangeEvent, forwardRef, useMemo } from 'react';
+import { forwardRef, useMemo } from 'react';
 import { ITextEditor, textEditorDefault } from './TextEditor.model';
-import { useTranslation } from 'react-i18next';
 import { classNames } from 'primereact/utils';
 import Validator from '../validator/Validator';
+import { useFallbackTranslation } from '@/hooks/useFallbackTranslation';
 
 interface IProps {
   name?: string;
@@ -15,7 +15,7 @@ interface IProps {
 }
 
 const TextEditor = forwardRef<HTMLInputElement, IProps>(({ name, value, onChange, error, config = {} }, ref) => {
-  const { t } = useTranslation();
+  const { t } = useFallbackTranslation();
 
   const textareaConfig = useMemo(() => ({ ...textEditorDefault(), ...config }), [config]);
 

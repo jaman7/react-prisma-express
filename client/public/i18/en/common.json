@@ -7,11 +7,16 @@
       "save": "Save",
       "view": "Browse",
       "add": "Add",
+      "assign": "Assign",
       "logIn": "Log In"
+    },
+    "pickList": {
+      "accessible": "Accessible",
+      "selected": "Selected"
     },
     "table": {
       "emptyMsg": "No data found.",
-      "currentPageReportTemplate": "Pokazano wiersz od {first} do {last} z {totalRecords} elementów",
+      "currentPageReportTemplate": "Showing row from {first} to {last} of {totalRecords} items",
       "currentTotalRecords": "{totalRecords} elementów"
     },
     "auth": {

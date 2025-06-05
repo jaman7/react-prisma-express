@@ -3,15 +3,15 @@ import { useParams } from 'react-router-dom';
 import { getTask, newTask } from './TaskDetails.service';
 import { IBoard, IBoardTask } from '@/store/data.model';
 import { UniqueIdentifier } from '@dnd-kit/core';
-import { useDispatch, useSelector } from 'react-redux';
 import { FormProvider, useForm, Controller } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { AppDispatch, IRootState } from '@/store/store';
-import { fetchBoard } from '@/store/actions/boardsActions';
 import { createConfigForm } from '@/shared/utils/form-config';
 import { formConfig, schema } from './TaskDetails.config';
 import FormElements from '@/shared/components/formElements/FormElements';
+import { catchError, of, tap } from 'rxjs';
+import { useGlobalStore } from '@/store/useGlobalStore';
+// import { fetchBoard$ } from '@/shared/services/ProjectsService';
 
 export interface IFormData {
   title?: string | undefined;
@@ -21,50 +21,72 @@ export interface IFormData {
 
 const TaskDetails: React.FC = () => {
   const [data, setData] = useState<IBoardTask | null>(null);
-  const dispatch = useDispatch<AppDispatch>();
-  const board: IBoard | null = useSelector((state: IRootState) => state?.dataSlice?.board ?? null);
-  const dicts = useSelector((state: IRootState) => state?.dataSlice.dict);
+  const board = useGlobalStore((state) => state.project.board ?? {});
+  const dicts = useGlobalStore((state) => state.dictionary ?? {});
   const { boardId, taskId } = useParams<{ boardId: string; taskId: string }>();
+
+  const { updateProject } = useGlobalStore();
 
   const formElements = createConfigForm(formConfig, { prefix: 'menu' });
 
-  const methods = useForm({
+  const formMethods = useForm({
     resolver: yupResolver(schema),
     mode: 'onChange',
     defaultValues: {},
   });
 
-  const { setValue, formState, control, watch } = methods;
+  const { setValue, formState, control, watch } = formMethods;
 
   const formValues = watch();
 
   const getData = (id: UniqueIdentifier) => {
-    getTask(id)
-      .then((res) => {
-        setData(res);
-        const { userId, assignedTo, ...rest } = res || {};
-        methods.reset({ ...rest });
-      })
-      .catch((e) => {
-        console.log('Failed to tasks.', e);
-      });
+    const subscription = getTask(id)
+      .pipe(
+        tap((res) => {
+          setData(res);
+          const { userId, assignedTo, ...rest } = res || {};
+          formMethods.reset({ ...rest });
+        }),
+        catchError((error) => {
+          console.error('Failed to tasks.', error);
+          return of(null);
+        })
+      )
+      .subscribe();
+    return () => subscription.unsubscribe();
   };
 
   const setNewTask = (data: Partial<IBoardTask>) => {
-    newTask(data)
-      .then((res) => {
-        setData({ ...res });
-      })
-      .catch((e) => {
-        console.log('Error post task.', e);
-      });
+    const subscription = newTask(data)
+      .pipe(
+        tap((res) => {
+          setData({ ...res });
+        }),
+        catchError((error) => {
+          console.error('Error post task.', error);
+          return of(null);
+        })
+      )
+      .subscribe();
+    return () => subscription.unsubscribe();
   };
 
-  useEffect(() => {
-    if (!board && boardId) {
-      dispatch(fetchBoard(boardId));
-    }
-  }, [board, boardId, dispatch]);
+  // useEffect(() => {
+  //   if (!board && boardId) {
+  //     const subscription = fetchBoard$(boardId)
+  //       .pipe(
+  //         tap((res) => {
+  //           updateBoard(res);
+  //         }),
+  //         catchError((error) => {
+  //           console.error('Error post task.', error);
+  //           return of(null);
+  //         })
+  //       )
+  //       .subscribe();
+  //     return () => subscription.unsubscribe();
+  //   }
+  // }, [board, boardId]);
 
   useEffect(() => {
     startTransition(() => {
@@ -81,13 +103,13 @@ const TaskDetails: React.FC = () => {
   };
 
   return (
-    <FormProvider {...methods}>
+    <FormProvider {...formMethods}>
       <div className="task-details">
-        <h2>Task Details</h2>
+        <h2 className="title">Task Details</h2>
         <p>Task ID: {taskId}</p>
       </div>
 
-      {methods?.getValues()?.title}
+      {formMethods?.getValues()?.title}
 
       {formElements?.map((el) => (
         <FormElements key={el.formControlName} formControlName={el?.formControlName as string} config={el.config} />

@@ -1,7 +1,8 @@
-import React, { memo, MouseEventHandler, useMemo } from 'react';
+import React, { memo, MouseEventHandler, useMemo, useRef } from 'react';
 import classNames from 'classnames';
-import { useTranslation } from 'react-i18next';
 import { Tooltip } from 'primereact/tooltip';
+import { useFallbackTranslation } from '@/hooks/useFallbackTranslation';
+import { confirmPopup } from 'primereact/confirmpopup';
 
 export type TypeButton = 'button' | 'submit' | 'reset';
 export type IButtonVariantTypes = 'primary' | 'secondary' | 'tertiary' | 'round';
@@ -31,11 +32,13 @@ export interface IButtonComponent {
   configCustomClass?: string;
   size?: 'xs' | 'sm' | 'lg';
   selected?: boolean;
+  showPopconfirm?: boolean;
 }
 
 const Button: React.FC<IButtonComponent> = (props) => {
   const { buttonsConfig, configCustomClass, variant } = props || {};
-  const { t } = useTranslation();
+  const currentEventRef = useRef<React.MouseEvent<HTMLButtonElement> | null>(null);
+  const { t } = useFallbackTranslation();
 
   const baseClasses = 'button-component';
 
@@ -67,27 +70,56 @@ const Button: React.FC<IButtonComponent> = (props) => {
       'target-tooltip'
     );
 
+    const accept = () => {
+      btn.handleClick?.(new MouseEvent('click') as unknown as React.MouseEvent<HTMLButtonElement>);
+      currentEventRef.current = null;
+    };
+
+    const reject = () => {
+      currentEventRef.current = null;
+    };
+
+    const confirmPopupTemplate = (event: React.MouseEvent<HTMLButtonElement>) => {
+      currentEventRef.current = event;
+      confirmPopup({
+        target: event.currentTarget,
+        message: (
+          <div className="flex flex-column align-items-center w-full gap-3 border-bottom-1 surface-border">
+            <i className="pi pi-exclamation-circle text-6xl text-primary-500"></i>
+            <span>{t('Please confirm to proceed.')}</span>
+          </div>
+        ),
+        acceptIcon: 'pi pi-check',
+        rejectIcon: 'pi pi-times',
+        rejectClassName: 'p-button-sm confirmPopup-btn',
+        acceptClassName: 'p-button-outlined p-button-sm confirmPopup-btn confirmPopup-btn-accept',
+        accept,
+        reject,
+      });
+    };
+
     return (
-      <button
-        key={`btn-${index}`}
-        id={btn.id}
-        type={btn.type || 'button'}
-        onClick={btn.handleClick}
-        disabled={btn.disabled}
-        aria-label={btn.ariaLabel ?? (btn.name ? t(btn.name) : '') ?? 'Unnamed Button'}
-        className={buttonVariantClass}
-        data-pr-tooltip={t(btn.tooltip || '')}
-        data-pr-classname="target-tooltip shadow-none"
-        data-pr-position="top"
-      >
-        {btn.name ? t(btn.name.toLowerCase()) : btn.children}
-      </button>
+      <>
+        <button
+          key={`btn-${index}`}
+          id={btn.id}
+          type={btn.type || 'button'}
+          onClick={(e) => (btn?.showPopconfirm ? confirmPopupTemplate(e) : btn.handleClick?.(e))}
+          disabled={btn.disabled}
+          aria-label={btn.ariaLabel ?? (btn.name ? t(btn.name) : '') ?? 'Unnamed Button'}
+          className={`${buttonVariantClass} target-tooltip`}
+          data-pr-tooltip={t(btn.tooltip || '')}
+          data-pr-classname={`shadow-none`}
+          data-pr-position="top"
+        >
+          {btn.name ? t(btn.name.toLowerCase()) : btn.children}
+        </button>
+      </>
     );
   };
 
   return (
     <>
-      <Tooltip target=".target-tooltip" autoHide={false} />
       {!buttonsConfig?.length ? (
         buttonRender(props)
       ) : (

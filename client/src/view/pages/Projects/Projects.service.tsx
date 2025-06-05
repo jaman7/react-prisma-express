@@ -1,34 +1,23 @@
-import HttpService from '@/core/http/http.service';
-import { IApiResponse, IProject } from './Projects.model';
+import { IProject } from './Projects.model';
 import { apiProjects } from './Projects.config';
 import { IParams } from '@/core/http/http.models';
+import { IApiResponse } from '@/shared/model';
+import { catchError, from, map, Observable, of } from 'rxjs';
+import httpService from '@/core/http/http.service';
 
-const http = new HttpService();
+const handleRequest = <T,>(observable: Observable<T>) =>
+  observable.pipe(
+    map((response) => response ?? {}),
+    catchError((error) => {
+      console.error('Request failed:', error);
+      return of({} as T);
+    })
+  );
 
-export const getProjects = (params: IParams): Promise<IApiResponse<IProject>> => {
-  return new Promise((resolve, reject) => {
-    http
-      .get<IApiResponse<IProject>>(apiProjects, params)
-      .then((data) => {
-        resolve(data);
-      })
-      .catch((error) => {
-        console.error('Error fetching project:', error);
-        reject(error);
-      });
-  });
+export const getProjects = (params: IParams): Observable<IApiResponse<IProject>> => {
+  return handleRequest(from(httpService.get<IApiResponse<IProject>>(apiProjects, params)));
 };
 
-export const getProject = (id: number): Promise<IProject> => {
-  return new Promise((resolve, reject) => {
-    http
-      .get<IProject>(`${apiProjects}${id}`)
-      .then((data) => {
-        resolve(data);
-      })
-      .catch((error) => {
-        console.error('Error fetching project:', error);
-        reject(error);
-      });
-  });
+export const deleteProject = (id: string): Observable<Record<string, string>> => {
+  return handleRequest(from(httpService.delete<Record<string, string>>(`${apiProjects}/${id}`)));
 };

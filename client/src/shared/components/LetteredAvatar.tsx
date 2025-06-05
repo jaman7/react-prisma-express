@@ -1,6 +1,6 @@
+import { useFallbackTranslation } from '@/hooks/useFallbackTranslation';
 import { Tooltip } from 'primereact/tooltip';
 import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 
 interface IProps {
   name: string;
@@ -9,9 +9,13 @@ interface IProps {
 }
 
 const LetteredAvatar: React.FC<IProps> = ({ name, size = 40, tooltipText = '' }) => {
-  const { t } = useTranslation();
+  const { t } = useFallbackTranslation();
+
+  if (!name) return null;
+
   const getInitials = useMemo(() => {
-    const nameParts = name.split(' ');
+    if (!name) return '';
+    const nameParts = name?.split(' ') ?? '';
     if (nameParts.length < 2) return name[0].toUpperCase();
     return `${nameParts[0][0]}${nameParts[1][0]}`.toUpperCase();
   }, [name]);

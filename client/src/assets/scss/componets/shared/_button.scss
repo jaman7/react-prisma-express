@@ -18,7 +18,7 @@
 
     @extend %btn-normal-radius;
 
-    &:hover {
+    &:hover:not(:disabled) {
       background-color: var(--main-bg-primary);
       color: var(--main-text-primary);
       border: 1px solid var(--main-border-primary);
@@ -32,7 +32,7 @@
 
     @extend %btn-normal-radius;
 
-    &:hover {
+    &:hover:not(:disabled) {
       background-color: var(--main-button-primary-bg);
       color: var(--main-text-white);
     }
@@ -45,7 +45,7 @@
 
     @extend %btn-normal-radius;
 
-    &:hover {
+    &:hover:not(:disabled) {
       background-color: var(--main-button-primary-bg);
       color: var(--main-text-white);
     }
@@ -59,9 +59,16 @@
 
     @extend %shared-box-shadow;
 
-    &:hover {
+    &:hover:not(:disabled) {
       background-color: var(--main-button-primary-bg);
       color: var(--main-text-white);
     }
+  }
+
+  &:disabled {
+    background-color: var(--main-bg-disabled);
+    color: var(--main-text-placeholder);
+    cursor: not-allowed;
+    pointer-events: none;
   }
 }

@@ -22,4 +22,10 @@
   &.invalid {
     border-color: var(--main-color-red);
   }
+
+  &:disabled {
+    @extend %disabled;
+
+    opacity: 1;
+  }
 }

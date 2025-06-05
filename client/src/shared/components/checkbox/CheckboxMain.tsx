@@ -1,9 +1,11 @@
 import { Checkbox, CheckboxChangeEvent } from 'primereact/checkbox';
-import { forwardRef, useMemo } from 'react';
+import { Tooltip } from 'primereact/tooltip';
+import { forwardRef, useId, useMemo } from 'react';
+import classNames from 'classnames';
 import { ICheckbox, checkboxConfigDefault } from './CheckboxMain.model';
-import { useTranslation } from 'react-i18next';
-import { classNames } from 'primereact/utils';
 import Validator from '../validator/Validator';
+import { FaCheck, FaRegCheckCircle, FaRegTimesCircle } from 'react-icons/fa';
+import { useFallbackTranslation } from '@/hooks/useFallbackTranslation';
 
 interface IProps {
   name?: string;
@@ -12,39 +14,56 @@ interface IProps {
   error?: string | null | undefined;
   touched?: boolean;
   value?: boolean;
+  tooltip?: string;
 }
 
-const CheckboxMain = forwardRef<HTMLInputElement, IProps>(({ name, value, onChange, error, config }, ref) => {
-  const { t } = useTranslation();
+const CheckboxMain = forwardRef<HTMLInputElement, IProps>(({ name, value, onChange, error, config, tooltip }, ref) => {
+  const { t } = useFallbackTranslation();
 
   const checkboxConfig = useMemo(() => ({ ...checkboxConfigDefault(), ...config }), [config]);
 
-  const { disabled, readonly } = checkboxConfig || {};
+  const { disabled, readonly, size } = checkboxConfig || {};
+
+  const tooltipId = useId();
 
   const handleChange = (e: CheckboxChangeEvent) => {
     onChange?.(e?.checked as boolean);
   };
 
-  const checkboxClasses = classNames('checkbox-component', {
+  const sizeClasses = {
+    xxs: 'xxs',
+    xs: 'xs',
+    sm: 'sm',
+    lg: 'lg',
+  };
+
+  const checkboxClasses = classNames('checkbox-component', sizeClasses[size || 'sm'], {
     invalid: error && !disabled,
     'cursor-not-allowed': disabled,
   });
 
   return (
-    <div className="d-flex flex-column w-auto" ref={ref}>
-      <Checkbox
-        id={name}
-        name={name}
-        disabled={disabled}
-        readOnly={readonly}
-        checked={value as boolean}
-        className={checkboxClasses}
-        value={value}
-        onChange={(e) => handleChange(e)}
-      />
-
-      {error && <Validator error={t(error)} />}
-    </div>
+    <>
+      <div className="d-flex flex-column w-auto" ref={ref}>
+        <Checkbox
+          id={`${name?.toLowerCase() ?? ''}`}
+          inputId={`${name?.toLowerCase() ?? ''}`}
+          name={`${name?.toLowerCase() ?? ''}`}
+          disabled={disabled}
+          readOnly={readonly}
+          checked={value as boolean}
+          className={`${checkboxClasses} target-tooltip-checkbox-${name?.toLowerCase() ?? ''}`}
+          value={value}
+          onChange={(e) => handleChange(e)}
+          icon={<FaCheck />}
+          data-pr-tooltip={t(tooltip || '')}
+          data-pr-classname={`shadow-none`}
+          data-pr-position="top"
+        />
+        {tooltip && <Tooltip target={`.target-tooltip-checkbox-${name?.toLowerCase() ?? ''}`} autoHide={false} />}
+        {error && <Validator error={t(error)} />}
+      </div>
+    </>
   );
 });
 

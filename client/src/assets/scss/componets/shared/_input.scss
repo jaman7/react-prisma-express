@@ -88,9 +88,9 @@
       }
 
       &:disabled {
-        background: var(--main-bg-disabled);
-        cursor: not-allowed;
-        pointer-events: none;
+        @extend %disabled;
+
+        opacity: 1;
 
         &::-webkit-slider-thumb,
         &::-moz-range-thumb {

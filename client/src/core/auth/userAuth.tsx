@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { IUseAuth } from './auth.model';
+import { IUseAuth } from '../../shared/model/auth';
 import { AuthContext } from './AuthProvider';
 
 export const useAuth = (): IUseAuth | null => {

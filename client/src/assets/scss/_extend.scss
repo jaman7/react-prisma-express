@@ -1,5 +1,21 @@
 %shared-box-shadow {
-  box-shadow: 0 1px 3px 0 var(--main-shadow-primary-color) !important;
+  box-shadow: 0 2px 5px 0 var(--main-shadow-primary-color) !important;
+}
+
+%shadow-soft {
+  box-shadow: 0 2px 6px rgb(0 0 0 / 5%) !important;
+}
+
+%input-hover-box {
+  border-color: var(--main-border-blue-light) !important;
+  box-shadow: none !important;
+  border-width: 2px !important;
+}
+
+%disabled {
+  background: var(--main-bg-disabled);
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 %scrol-v {

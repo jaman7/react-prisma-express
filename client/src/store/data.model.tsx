@@ -8,6 +8,12 @@ export interface IBoardColumn {
   status?: ColumnStatus;
 }
 
+export interface IMoveRulesColumn {
+  id?: string;
+  boardId?: string;
+  rules?: Record<string, string[]>;
+}
+
 export interface IBoardTask {
   id?: string;
   title?: string;
@@ -21,7 +27,15 @@ export interface IBoardTask {
   updatedAt?: string;
   [name: string]: any;
 }
-
+export interface IBoard {
+  id?: string;
+  projectId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  columns?: IBoardColumn[];
+  tasks?: IBoardTask[];
+  moveRules?: IMoveRulesColumn;
+}
 export interface IBoardProject {
   id?: string;
   name?: string;
@@ -29,22 +43,13 @@ export interface IBoardProject {
   isActive?: boolean;
   createdAt?: string;
   updatedAt?: string;
+  board?: IBoard;
+  users?: string[];
 }
 
 export type ColumnStatus = 'TO_DO' | 'IN_PROGRESS' | 'CR' | 'READY_FOR_TEST' | 'TESTING' | 'DONE';
 
 export type TaskStatus = ColumnStatus;
-
-export interface IBoard {
-  id?: string;
-  name?: string;
-  projectId?: string;
-  createdAt?: string;
-  updatedAt?: string;
-  columns?: IBoardColumn[];
-  tasks?: IBoardTask[];
-  project?: IBoardProject;
-}
 
 export interface IData {
   board?: IBoard;

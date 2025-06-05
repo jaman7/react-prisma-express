@@ -10,11 +10,9 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import LoginFooter from './LoginFooter';
 import { useTranslation } from 'react-i18next';
-import { useDispatch } from 'react-redux';
-import dataSlice from 'store/dataSlice';
 import { createConfigForm } from '@/shared/utils/form-config';
 import Button, { ButtonVariant } from '@/shared/components/button/Button';
-const { clearStore } = dataSlice.actions;
+import { useGlobalStore } from '@/store/useGlobalStore';
 
 const { PATH_LOGIN, PATH_LOGOUT, PATH_SIGNUP, PATH_FORGOT_PASSWORD, PATH_UPDATE_PASSWORD } = IAuthPath;
 
@@ -46,7 +44,7 @@ const Login: React.FC<IProps> = ({ path }) => {
   const [loading, setLoading] = useState(false);
   const [butonNameSubmit, setButonNameSubmit] = useState('');
   const { t } = useTranslation();
-  const dispatch = useDispatch();
+  const { clearStore } = useGlobalStore();
   const { login, logout } = useAuth() || {};
 
   const navigate = useNavigate();
@@ -62,7 +60,7 @@ const Login: React.FC<IProps> = ({ path }) => {
 
   const setlogout = async () => {
     logout?.().then(() => {
-      dispatch(clearStore());
+      clearStore();
       navigate(PATH_LOGIN);
     });
   };

@@ -1,44 +1,37 @@
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import classNames from 'classnames';
-import { PiUsers } from 'react-icons/pi';
-import { GoProjectSymlink } from 'react-icons/go';
 import LazyImage from '@/shared/components/LazyImage';
-import { useDispatch, useSelector } from 'react-redux';
-import { IRootState } from '@/store/store';
 import { UsersTYpe } from '@/shared/enums';
 import { useAuth } from '@/core/auth/userAuth';
-import dataSlice from '@/store/dataSlice';
 import Button, { ButtonVariant } from '@/shared/components/button/Button';
 import CaretIcon from '@/shared/components/icons/CaretIcon';
 import { ReactNode } from 'react';
-import { Tooltip } from 'primereact/tooltip';
-import { useTranslation } from 'react-i18next';
-
-const { setIsSideBarOpen } = dataSlice.actions;
+import { useGlobalStore } from '@/store/useGlobalStore';
+import { useFallbackTranslation } from '@/hooks/useFallbackTranslation';
+import { toSeoUrlCase } from '@/shared/utils/helpers';
 
 const Sidebar: React.FC = () => {
-  const isSideBarOpen = useSelector((state: IRootState) => state?.dataSlice.isSideBarOpen);
-  const dicts = useSelector((state: IRootState) => state?.dataSlice.dict);
-  const { user = {}, setActiveBoard } = useAuth() || {};
-  const { t } = useTranslation();
+  const isSideBarOpen = useGlobalStore((state) => state.isSideBarOpen ?? {});
+  const dicts = useGlobalStore((state) => state.dictionary ?? {});
+
+  const { setIsSideBarOpen } = useGlobalStore();
+  const { user = {}, setActivProject } = useAuth() || {};
+
+  const { t } = useFallbackTranslation();
   const navigate = useNavigate();
-  const location = useLocation();
-  const dispatch = useDispatch();
 
   const handleRedirect = (path: string) => {
     navigate(path);
   };
 
   const handleSideBar = (): void => {
-    dispatch(setIsSideBarOpen(!isSideBarOpen));
+    setIsSideBarOpen();
   };
 
-  const handleBoard = async (id: string, isActive = true) => {
-    console.log(id);
-    if (!isActive) await setActiveBoard?.(id);
-    if (location.pathname !== '/') {
-      navigate('/');
+  const handleBoard = (id: string, isActive = true) => {
+    if (!isActive) {
+      setActivProject?.(id);
     }
   };
 
@@ -56,18 +49,32 @@ const Sidebar: React.FC = () => {
   ];
 
   const renderSideMenu = (): ReactNode | ReactNode[] => {
-    return dicts?.boardsByUserDict?.map((item, index) => (
+    return dicts?.userProjectsDict?.map((item, index) => (
       <li
         role="presentation"
-        key={`boards-${index}`}
-        className={classNames('item target-tooltip', { active: item.id === user?.activeBoardId, close: !isSideBarOpen })}
-        onClick={() => handleBoard(item?.id as string, item.id === user?.activeBoardId)}
+        key={`project-${index}`}
+        onClick={() => handleBoard(item?.id as string, item.id === user?.activeProjectId)}
         data-pr-tooltip={t(item.displayName || '')}
         data-pr-classname="target-tooltip shadow-none"
         data-pr-position="right"
       >
-        <i className="pi pi-tags"></i>
-        <span className={classNames({ open: isSideBarOpen })}>{item?.displayName}</span>
+        <NavLink
+          className={({ isActive, isPending }) =>
+            classNames('item target-tooltip', {
+              pending: isPending,
+              last: item.id === user?.activeProjectId,
+              active: isActive,
+              close: !isSideBarOpen,
+            })
+          }
+          to={`/project/${toSeoUrlCase(item?.displayName as string)}/${item.id}`}
+          data-pr-tooltip={t(item.displayName || '')}
+          data-pr-classname="target-tooltip shadow-none"
+          data-pr-position="right"
+        >
+          <i className="pi pi-tags"></i>
+          <span className={classNames({ open: isSideBarOpen })}>{item?.displayName}</span>
+        </NavLink>
       </li>
     ));
   };
@@ -91,9 +98,9 @@ const Sidebar: React.FC = () => {
         <h3 className={classNames('logo-text', { open: isSideBarOpen })}>Dashboard</h3>
       </div>
 
-      <div className={classNames('board-list', { close: !isSideBarOpen })}>
-        <h3 className={classNames('board-list-title', { open: isSideBarOpen })}>All boards ({dicts?.boardsByUserDict?.length})</h3>
-        <ul className="board-list-menu">{renderSideMenu()}</ul>
+      <div className={classNames('project-list', { close: !isSideBarOpen })}>
+        <h3 className={classNames('project-list-title', { open: isSideBarOpen })}>All boards ({dicts?.boardsByUserDict?.length})</h3>
+        <ul className="project-list-menu">{renderSideMenu()}</ul>
       </div>
 
       {user?.role === UsersTYpe.ADMIN ? (
@@ -128,8 +135,6 @@ const Sidebar: React.FC = () => {
       <Button variant={ButtonVariant.ROUND} size="xs" className="toggler" handleClick={handleSideBar} ariaLabel="Toggle Sidebar">
         <CaretIcon className={`icon ${isSideBarOpen ? 'open' : ''}`} />
       </Button>
-
-      <Tooltip target=".target-tooltip" autoHide={true} />
     </motion.aside>
   );
 };

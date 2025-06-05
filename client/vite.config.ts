@@ -21,8 +21,15 @@ export default defineConfig({
         silenceDeprecations: ['mixed-decls', 'color-functions', 'global-builtin', 'import'],
       },
     },
+    devSourcemap: true,
   },
   build: {
     target: 'esnext',
+  },
+  define: {
+    'process.env': {},
+  },
+  worker: {
+    format: 'es',
   },
 });

@@ -11,11 +11,16 @@
   flex: 1;
   font-size: 14px;
   min-width: 100px;
-  background-color: var(--main-bg-secondary) !important;
+  background-color: var(--main-bg-secondary);
   border: 1px solid var(--main-border-primary);
   border-radius: 8px;
 
   @extend %shared-box-shadow;
+
+  &-highlight {
+    background-color: var(--main-bg-page);
+    border: 2px dashed var(--main-bg-blue);
+  }
 
   &-header {
     font-weight: 500;

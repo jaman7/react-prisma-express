@@ -1,33 +1,29 @@
 import Hamburger from 'hamburger-react';
 import { Fragment, ReactNode, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 import { useClickAway, useWindowSize } from 'react-use';
-import { IRootState } from 'store/store';
 import { Variants, motion } from 'framer-motion';
 import classNames from 'classnames';
-import dataSlice from 'store/dataSlice';
 import { useAuth } from '@/core/auth/userAuth';
 import LetteredAvatar from '@/shared/components/LetteredAvatar';
-import React from 'react';
-
-const { setIsSideBarOpen } = dataSlice.actions;
+import { useGlobalStore } from '@/store/useGlobalStore';
 
 const Navbar = () => {
   const [isActive, setIsActive] = useState(false);
   const ref = useRef(null);
   const size = useWindowSize();
   const { user = {} } = useAuth() || {};
-  const isSideBarOpen = useSelector((state: IRootState) => state?.dataSlice.isSideBarOpen);
-  const dispatch = useDispatch();
+  const isSideBarOpen = useGlobalStore((state) => state.isSideBarOpen ?? {});
   const { name, lastName, role, email } = user || {};
+
+  const { setIsSideBarOpen } = useGlobalStore();
 
   useClickAway(ref, () => {
     setIsActive(false);
   });
 
   const setOpenSideBar = () => {
-    dispatch(setIsSideBarOpen(!isSideBarOpen));
+    setIsSideBarOpen();
   };
 
   const isMobile = size.width < 640;

@@ -2,26 +2,32 @@
 // MIXINS
 // ***********************************
 
-@mixin transition-all($time: 5s) {
-  transition: all $time ease-in-out;
+@use "sass:color";
+
+@mixin transition($properties: all, $time: 0.3s, $easing: ease-in-out) {
+  transition: $properties $time $easing;
 }
 
 @mixin fade($time: 0.5s) {
   transition: background-color $time ease-in-out;
 }
 
-@mixin displayflex() {
+@mixin flexbox($align: center, $justify: center, $direction: row, $gap: 0) {
   display: flex;
+  align-items: $align;
+  justify-content: $justify;
+  flex-direction: $direction;
+  gap: $gap;
 }
 
 @mixin border-radius($radius) {
   border-radius: $radius;
 }
 
-@mixin bgcolor($klasa, $ile, $color) {
-  @for $i from 1 through $ile {
-    .#{$klasa}#{$i} {
-      background-color: nth($color, $i);
+@mixin generate-bgcolors($class-prefix, $colors) {
+  @each $color-name, $color-value in $colors {
+    .#{$class-prefix}-#{$color-name} {
+      background-color: $color-value;
     }
   }
 }
@@ -42,6 +48,7 @@ $slg: 1366px;
 $mlg: 1440px;
 $llg: 1600px;
 $xlg: 1920px;
+$xxlg: 2560px;
 
 // Predefined Break-points
 
@@ -52,95 +59,119 @@ $xlg: 1920px;
     "retina":
       "(-webkit-min-device-pixel-ratio: 1.5), (min--moz-device-pixel-ratio: 1.5), (-o-min-device-pixel-ratio: 3/2), (min-device-pixel-ratio: 1.5), (min-resolution: 120dpi)",
     "maxxlg": "(max-width: #{$xlg})",
-    "minxlg": "(min-width: #{$llg})",
-    "maxllg": "(max-width: #{$llg - 1})",
-    "minllg": "(min-width: #{$mlg})",
-    "maxmlg": "(max-width: #{$mlg - 1})",
-    "minmlg": "(min-width: #{$slg})",
-    "maxslg": "(max-width: #{$slg - 1})",
-    "minslg": "(min-width: #{$lg})",
-    "maxlg": "(max-width: #{$lg - 1})",
-    "minlg": "(min-width: #{$md})",
-    "maxmd": "(max-width: #{$md - 1})",
-    "minmd": "(min-width: #{$sm})",
-    "maxsm": "(max-width: #{$sm - 1})",
-    "minsm": "(min-width: #{$xsm})",
-    "maxxsm": "(max-width: #{$xsm - 1})",
+    "minxlg": "(min-width: #{$llg + 1})",
+    "maxllg": "(max-width: #{$llg})",
+    "minllg": "(min-width: #{$mlg + 1})",
+    "maxmlg": "(max-width: #{$mlg})",
+    "minmlg": "(min-width: #{$slg + 1})",
+    "maxslg": "(max-width: #{$slg})",
+    "minslg": "(min-width: #{$lg + 1})",
+    "maxlg": "(max-width: #{$lg})",
+    "minlg": "(min-width: #{$md + 1})",
+    "maxmd": "(max-width: #{$md})",
+    "minmd": "(min-width: #{$sm + 1})",
+    "maxsm": "(max-width: #{$sm})",
+    "minsm": "(min-width: #{$xsm + 1})",
+    "maxxsm": "(max-width: #{$xsm})",
     "minxsm": "(min-width: 240px)",
   );
 
-  @return map-get($condMap, $c);
+  @if map-has-key($condMap, $c) {
+    @return map-get($condMap, $c);
+  }
+
+  // Dynamiczna obsługa np. `max-1200px` lub `min-800px`
+  @if str-index($c, "max-") {
+    @return "(max-width: #{str-slice($c, 5)})";
+  }
+
+  @if str-index($c, "min-") {
+    @return "(min-width: #{str-slice($c, 5)})";
+  }
+
+  @warn "Nieznana wartość media query: #{$c}";
+  @return null;
 }
 
 // The media mixin
-@mixin mq($args) {
+@mixin mq($args...) {
   $query: "";
 
   @each $arg in $args {
-    $op: "";
+    $condition: translate-media-condition($arg);
 
-    @if $query != "" {
-      $op: " and ";
+    @if $condition {
+      $query: if($query == "", $condition, "#{$query} and #{$condition}");
     }
-
-    $query: $query + $op + translate-media-condition($arg);
   }
 
-  @media #{$query} {
-    @content;
+  @if $query != "" {
+    @media #{$query} {
+      @content;
+    }
+  } @else {
+    @warn "Żaden warunek media query nie został rozpoznany: #{$args}";
   }
 }
 
-/// Convert angle
+// ***********************************
+// linear-gradient
+// ***********************************
+
+/// Convert angle between different units
 /// @author Chris Eppstein
-/// @param {Number} $value - Value to convert
-/// @param {String} $unit - Unit to convert to
+/// @param {Number} $value - The input angle to convert
+/// @param {String} $unit - Target unit (deg, grad, turn, rad)
 /// @return {Number} Converted angle
 @function convert-angle($value, $unit) {
-  $convertable-units: deg grad turn rad;
-  $conversion-factors: 1 (10grad / 9deg) (1turn / 360deg) (3.1416rad / 180deg);
+  $convertable-units: (deg, grad, turn, rad);
+  $conversion-factors: (
+    "deg": 1deg,
+    "grad": 10grad / 9deg,
+    "turn": 1turn / 360deg,
+    "rad": 3.1416rad / 180deg,
+  );
 
-  @if index($convertable-units, unit($value)) and index($convertable-units, $unit) {
-    @return $value / nth($conversion-factors, index($convertable-units, unit($value))) *
-      nth($conversion-factors, index($convertable-units, $unit));
+  @if index($convertable-units, unit($value)) and map-has-key($conversion-factors, $unit) {
+    @return $value / map-get($conversion-factors, unit($value)) * map-get($conversion-factors, $unit);
   }
 
   @warn "Cannot convert `#{unit($value)}` to `#{$unit}`.";
+  @return null;
 }
 
-/// Test if `$value` is an angle
-/// @param {*} $value - Value to test
-/// @return {Bool}
+/// Check if a value is a valid CSS direction or an angle
+/// @param {*} $value - Value to check
+/// @return {Bool} True if valid direction or angle
 @function is-direction($value) {
-  $is-direction: index(
-    (
-      to top,
-      to top right,
-      to right top,
-      to right,
-      to bottom right,
-      to right bottom,
-      to bottom,
-      to bottom left,
-      to left bottom,
-      to left,
-      to left top,
-      to top left
-    ),
-    $value
+  $valid-directions: (
+    to top,
+    to top right,
+    to right top,
+    to right,
+    to bottom right,
+    to right bottom,
+    to bottom,
+    to bottom left,
+    to left bottom,
+    to left,
+    to left top,
+    to top left
   );
-  $is-angle: type-of($value) == "number" and index("deg" "grad" "turn" "rad", unit($value));
+  $is-direction: index($valid-directions, $value);
+  $is-angle: type-of($value) == "number" and index(("deg", "grad", "turn", "rad"), unit($value));
 
   @return $is-direction or $is-angle;
 }
 
-/// Convert a direction to legacy syntax
-/// @param {Keyword | Angle} $value - Value to convert
+/// Convert CSS direction to legacy syntax
+/// @param {Keyword | Angle} $value - Direction or angle to convert
 /// @require {function} is-direction
 /// @require {function} convert-angle
+/// @return {String | Number} Converted value
 @function legacy-direction($value) {
   @if is-direction($value) == false {
-    @warn "Cannot convert `#{$value}` to legacy syntax because it doesn't seem to be an angle or a direction";
+    @warn "Cannot convert `#{$value}` to legacy syntax. Not a valid angle or direction.";
   }
 
   $conversion-map: (
@@ -162,23 +193,31 @@ $xlg: 1920px;
     @return map-get($conversion-map, $value);
   }
 
+  // Convert numeric angle
   @return 90deg - convert-angle($value, "deg");
 }
 
-/// Mixin printing a linear-gradient
-/// as well as a plain color fallback
-/// and the `-webkit-` prefixed declaration
+/// Apply a linear gradient with fallback
 /// @access public
-/// @param {String | List | Angle} $direction - Linear gradient direction
-/// @param {Arglist} $color-stops - List of color-stops composing the gradient
+/// @param {String | List | Angle} $direction - Gradient direction
+/// @param {Arglist} $color-stops - List of color stops
+/// @example scss - Usage
+///   .button {
+///     @include linear-gradient(to right, red, blue);
+///   }
 @mixin linear-gradient($direction, $color-stops...) {
   @if is-direction($direction) == false {
     $color-stops: ($direction, $color-stops);
     $direction: 180deg;
   }
 
+  // Fallback color for older browsers
   background: nth(nth($color-stops, 1), 1);
+
+  // Legacy direction support
   background: linear-gradient(legacy-direction($direction), $color-stops);
+
+  // Standard linear gradient
   background: linear-gradient($direction, $color-stops);
 }
 
@@ -187,11 +226,11 @@ $xlg: 1920px;
   animation-delay: $times;
 }
 
-// /*
-//  * Apply a CSS3 transition-property
-//  * @include transitionProperty(opacity);
-//  * @include transitionProperty((height, width)); Multiple properties can be passed in surrounded by brackets
-//  */
+/*
+ * Apply a CSS3 transition-property
+ * @include transitionProperty(opacity);
+ * @include transitionProperty((height, width)); Multiple properties can be passed in surrounded by brackets
+ */
 @mixin transition-property($property) {
   transition-property: $property;
 }
@@ -205,36 +244,25 @@ $xlg: 1920px;
 }
 
 // Sass interpolation to make a generic mixin that you can use to set any color attribute:
-@mixin alpha-attribute($attribute, $color, $background) {
-  $percent: alpha($color) * 100%;
-  $opaque: opacify($color, 1);
-  $solid-color: mix($opaque, $background, $percent);
-
-  #{$attribute}: $solid-color;
-  #{$attribute}: $color;
-}
-
-@mixin fluid-type($min-value: 12px, $max-value: 21px, $properties: "font-size", $min-vw: 320px, $max-vw: 1440px) {
+@mixin fluid-type($min-value: 12px, $max-value: 21px, $properties: "font-size", $min-vw: 320px, $max-vw: 1600px) {
   @each $property in $properties {
     #{$property}: $min-value;
   }
 
   @media (min-width: $min-vw) {
     @each $property in $properties {
-      #{$property}: calc(#{$min-value} + #{strip-unit($max-value - $min-value)} * (100vw - #{$min-vw}) / #{strip-unit($max-vw - $min-vw)});
-    }
-  }
-
-  @media (min-width: $max-vw) {
-    @each $property in $properties {
-      #{$property}: $max-value;
+      #{$property}: clamp(
+        #{$min-value},
+        calc(#{$min-value} + (#{strip-unit($max-value - $min-value)} * (100vw - #{$min-vw}) / #{strip-unit($max-vw - $min-vw)})),
+        #{$max-value}
+      );
     }
   }
 }
 
 @function strip-unit($number) {
-  @if type-of($number) == "number" and not unitless($number) {
-    @return math.div($number, $number * 0 + 1);
+  @if type-of($number) == "number" and unitless($number) == false {
+    @return $number / ($number * 0 + 1); // Usuwa jednostkę, np. px
   }
 
   @return $number;
@@ -252,32 +280,101 @@ $xlg: 1920px;
   transform: translateZ(0) translate(-50%, -50%);
 }
 
-/// Mixin to customize scrollbars
-/// Beware, this does not work in all browsers
-/// @author Hugo Giraudel
-/// @param {Length} $size - Horizontal scrollbar's height and vertical scrollbar's width
-/// @param {Color} $foreground-color - Scrollbar's color
-/// @param {Color} $background-color [mix($foreground-color, white, 50%)] - Scrollbar's color
-/// @example scss - Scrollbar styling
-///   @include scrollbars(.5em, slategray);
-@mixin scrollbars($size, $foreground-color, $background-color: mix($foreground-color, #fff, 50%)) {
-  // For Google Chrome
-  ::-webkit-scrollbar {
-    width: $size;
-    height: $size;
+@mixin text-ellipsis($max-width: 100%) {
+  max-width: $max-width;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+// ***********************************
+// Z-INDEX SYSTEM
+// ***********************************
+
+$z-index-map: (
+  "modal": 1000,
+  "overlay": 900,
+  "dropdown": 800,
+  "tooltip": 1100,
+);
+
+// ✅ Mixin dla z-index (kontrola warstw w jednym miejscu)
+@mixin z-index($level) {
+  @if map-has-key($z-index-map, $level) {
+    z-index: map-get($z-index-map, $level);
+  } @else {
+    @warn "Nieznany poziom z-index: #{$level}";
+  }
+}
+
+// ***********************************
+// ASPECT RATIO (np. 16:9)
+// ***********************************
+
+@mixin aspect-ratio($width, $height) {
+  position: relative;
+  width: 100%;
+  padding-top: ($height / $width) * 100%;
+
+  > * {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+// ***********************************
+// SCROLLBARS MIXINS
+// ***********************************
+
+/// 🔹 Uniwersalny scrollbar
+/// @param {Number} $size - Rozmiar scrollbara (np. 14px)
+/// @param {Color} $thumb-color - Kolor uchwytu (domyślnie `--main-bg-blue`)
+/// @param {Color} $track-color - Kolor tła toru scrollbara (domyślnie `--main-text-white`)
+/// @param {Number} $border-radius - Zaokrąglenie rogów (domyślnie 8px)
+/// @param {Boolean} $horizontal - Jeśli `true`, dotyczy scrollbarów poziomych
+@mixin scrollbar($size: 14px, $thumb-color: #0971fe, $track-color: #fff, $border-radius: 8px, $horizontal: false) {
+  &::-webkit-scrollbar {
+    @if $horizontal {
+      height: $size;
+    } @else {
+      width: $size;
+    }
+
+    background: $track-color;
+    border-radius: $border-radius;
+
+    &-track {
+      background: $track-color;
+      border-radius: $border-radius;
+    }
+
+    &-thumb {
+      background: $thumb-color;
+      border-radius: $border-radius;
+      border: 2px solid $track-color;
+      min-height: 100px;
+
+      &:hover {
+        background: color.adjust($thumb-color, $lightness: 10%);
+        cursor: pointer;
+      }
+    }
   }
 
-  ::-webkit-scrollbar-thumb {
-    background: $foreground-color;
-  }
+  // 🦊 Obsługa dla Firefoxa
+  // scrollbar-width: thin;
+  // scrollbar-color: $thumb-color $track-color;
+}
 
-  ::-webkit-scrollbar-track {
-    background: $background-color;
-  }
+// 🔹 Scrollbar pionowy
+@mixin scrollbar-vertical($size: 14px, $thumb-color: #0971fe, $track-color: #fff, $border-radius: 8px) {
+  @include scrollbar($size, $thumb-color, $track-color, $border-radius, false);
+}
 
-  // For Internet Explorer
-  body {
-    scrollbar-face-color: $foreground-color;
-    scrollbar-track-color: $background-color;
-  }
+// 🔹 Scrollbar poziomy
+@mixin scrollbar-horizontal($size: 12px, $thumb-color: #0971fe, $track-color: #fff, $border-radius: 8px) {
+  @include scrollbar($size, $thumb-color, $track-color, $border-radius, true);
 }

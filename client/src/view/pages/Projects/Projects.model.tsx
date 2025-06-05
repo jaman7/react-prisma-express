@@ -19,15 +19,3 @@ export interface IProject {
   countDone?: number;
   countNotDone?: number;
 }
-
-export interface IPagination {
-  total?: number;
-  page?: number;
-  pageSize?: number;
-  totalPages?: number;
-}
-
-export interface IApiResponse<T> {
-  data?: T[];
-  pagination?: IPagination;
-}

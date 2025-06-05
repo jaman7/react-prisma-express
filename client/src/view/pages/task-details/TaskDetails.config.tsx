@@ -1,7 +1,7 @@
 import { IFormElementsConfig } from '@/shared/components/formElements/FormElements.model';
 import * as yup from 'yup';
 
-export const apiTasks = '/api/tasks';
+export const apiTasks = 'tasks';
 
 export const formConfig: IFormElementsConfig = {
   title: { config: { placeholder: 'np. Promocje', header: 'Nazwa' } },

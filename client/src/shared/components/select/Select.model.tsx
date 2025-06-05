@@ -13,11 +13,12 @@ export interface IDictionary {
 export interface ISelect {
   formControlName?: string;
   placeholder?: string;
-  defaultValue?: number | string;
+  defaultValue?: number | string | number[] | string[] | null;
   dictData?: IDictType[];
   disabled?: boolean;
   size?: string;
-  mode?: string;
+  mode?: 'default' | 'multiple';
+  checkmark?: boolean;
 }
 
 export enum SelectEnum {
@@ -29,4 +30,6 @@ export const selectConfigDefault = (): ISelect => ({
   mode: 'default',
   placeholder: '',
   dictData: [],
+  disabled: false,
+  checkmark: true,
 });

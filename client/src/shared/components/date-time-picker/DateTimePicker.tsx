@@ -1,11 +1,10 @@
-import { Checkbox, CheckboxChangeEvent } from 'primereact/checkbox';
 import { forwardRef, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import { classNames } from 'primereact/utils';
 import Validator from '../validator/Validator';
 import { Calendar } from 'primereact/calendar';
 import { FormEvent } from 'primereact/ts-helpers';
 import { DateTimePickerConfigDefault, IDateTimePicker } from './DateTimePicker.models';
+import { useFallbackTranslation } from '@/hooks/useFallbackTranslation';
 
 interface IProps {
   name?: string;
@@ -17,21 +16,19 @@ interface IProps {
 }
 
 const DateTimePicker = forwardRef<HTMLInputElement, IProps>(({ name, value, onChange, error, config }, ref) => {
-  const { t } = useTranslation();
+  const { t } = useFallbackTranslation();
 
   const dateTimeConfig: IDateTimePicker = useMemo(() => ({ ...DateTimePickerConfigDefault(), ...config }), [config]);
 
-  const { disabled, readonly, placeholder, dateFormat, view, inline, selectionMode } = dateTimeConfig || {};
+  const { disabled, readonly, placeholder, dateFormat, view, inline, selectionMode, formCellType } = dateTimeConfig || {};
 
   const handleChange = (e: FormEvent) => {
-    // Pass the value back to react-hook-form
     console.log(e.value);
-    onChange?.(e.value); // Calendar's value will already be a Date object
+    onChange?.(e.value);
   };
 
   const parsedValue = useMemo(() => {
     if (value && typeof value === 'string') {
-      // Ensure the value is converted to a Date object
       return new Date(value);
     }
     return value;

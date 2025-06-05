@@ -1,0 +1,152 @@
+.pick-list {
+  font-family: var(--main-font-roboto);
+
+  & .p-picklist {
+    &-header {
+      font-family: var(--main-font-roboto);
+      background-color: var(--main-bg-gray);
+      color: var(--main-text-secondary);
+      border: none;
+      font-size: 12px;
+      padding: 0.15rem 0.5rem;
+      border-top-right-radius: 0;
+      border-top-left-radius: 0;
+    }
+
+    &-filter {
+      &-container {
+        border: none;
+        margin: 0;
+        display: block;
+        position: relative;
+        padding: 0 0.5rem 0.5rem;
+      }
+
+      & input {
+        padding: 2px 4px;
+        color: var(--main-text-primary);
+        font-size: 13px;
+        font-family: var(--main-font-roboto);
+        line-height: 1;
+        border: 1px solid var(--main-border-primary);
+        border-radius: 5px;
+
+        &:focus {
+          @extend %input-hover-box;
+        }
+      }
+
+      & .p-icon-wrapper {
+        font-size: 14px;
+
+        & svg {
+          width: 14px;
+          height: 14px;
+          position: absolute;
+          top: 50%;
+          margin-top: 0;
+          transform: translate(0, -35%);
+        }
+      }
+
+      &-icon {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        margin: 0;
+        display: flex;
+        right: 0.5rem !important;
+        align-items: center;
+        height: 13px;
+        width: 13px;
+      }
+    }
+
+    &-source-wrapper,
+    &-target-wrapper {
+      border: solid 1px var(--main-bg-gray);
+      border-radius: 5px;
+      flex: 1 !important;
+      width: 0;
+      min-width: 0;
+    }
+
+    &-list {
+      background-color: var(--main-bg-white);
+      font-family: var(--main-font-roboto);
+      color: var(--main-bg-blue);
+      font-size: 12px;
+      border: none;
+      margin: 0;
+      padding: 0;
+
+      @include scrollbar-vertical(12px);
+    }
+
+    &-item {
+      display: flex;
+      align-items: center;
+      color: var(--main-text-blue) !important;
+      padding: 2px 8px !important;
+      gap: 0.5rem;
+
+      & span {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      &:hover {
+        &:not(.p-highlight) {
+          background-color: var(--main-bg-blue-light);
+          color: var(--main-text-white) !important;
+        }
+      }
+
+      &.p-highlight {
+        background-color: var(--main-bg-blue);
+        color: var(--main-text-white) !important;
+
+        &:hover {
+          background-color: var(--main-bg-blue2);
+          color: var(--main-text-white) !important;
+        }
+      }
+
+      & .p-picklist-item.cdk-drag-preview {
+        color: var(--main-text-blue) !important;
+      }
+    }
+
+    &-buttons {
+      padding: 0 0.5rem;
+      gap: 0.5rem;
+
+      & .p-button {
+        position: relative;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--main-bg-secondary);
+        color: var(--main-text-primary);
+        border: none;
+
+        @extend %shared-box-shadow;
+
+        &:hover:not(.p-disabled) {
+          background-color: var(--main-button-primary-bg);
+          color: var(--main-text-white);
+        }
+
+        &.p-disabled {
+          background-color: var(--main-bg-disabled);
+          color: var(--main-text-placeholder);
+        }
+      }
+    }
+  }
+}

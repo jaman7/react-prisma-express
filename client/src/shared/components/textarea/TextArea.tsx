@@ -1,9 +1,9 @@
 import { InputTextarea } from 'primereact/inputtextarea';
 import { ChangeEvent, forwardRef, useMemo } from 'react';
 import { ITextArea, textAreaConfigDefault } from './TextArea.model';
-import { useTranslation } from 'react-i18next';
 import { classNames } from 'primereact/utils';
 import Validator from '../validator/Validator';
+import { useFallbackTranslation } from '@/hooks/useFallbackTranslation';
 
 interface IProps {
   name?: string;
@@ -11,11 +11,11 @@ interface IProps {
   onChange?: (value: string) => void;
   error?: string | null | undefined;
   touched?: boolean;
-  value?: string;
+  value?: string | null;
 }
 
-const TextArea = forwardRef<HTMLInputElement, IProps>(({ name, value, onChange, error, config = {} }, ref) => {
-  const { t } = useTranslation();
+const TextArea = forwardRef<HTMLInputElement, IProps>(({ name, value = '', onChange, error, config = {} }, ref) => {
+  const { t } = useFallbackTranslation();
 
   const textareaConfig = useMemo(() => ({ ...textAreaConfigDefault(), ...config }), [config]);
 
@@ -42,7 +42,7 @@ const TextArea = forwardRef<HTMLInputElement, IProps>(({ name, value, onChange, 
         disabled={disabled}
         readOnly={readonly}
         className={textareaClasses}
-        value={value}
+        value={value || undefined}
         onChange={handleChange}
         invalid={!!error}
         rows={rows}

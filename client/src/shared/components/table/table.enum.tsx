@@ -2,6 +2,8 @@ export enum TableIcons {
   VIEW = 'VIEW',
   EDIT = 'EDIT',
   DELETE = 'DELETE',
+  ADD = 'ADD',
+  ASSIGN = 'ASSIGN',
 }
 
 export enum SortingFiltersTableEnum {

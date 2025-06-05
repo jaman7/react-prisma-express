@@ -3,22 +3,39 @@ import { IFormElements, IFormElementsEnum } from './FormElements.model';
 import { Controller, useFormContext } from 'react-hook-form';
 import Input from '../input/Input';
 import Select from '../select/Select';
-import { useTranslation } from 'react-i18next';
 import CheckboxMain from '../checkbox/CheckboxMain';
 import DateTimePicker from '../date-time-picker/DateTimePicker';
 import classNames from 'classnames';
 import TextArea from '../textarea/TextArea';
 import TextEditor from '../text-editor/TextEditor';
+import FormSortableColumns from '../FormSortableColumns/FormSortableColumns';
+import CheckboxMatrix from '../CheckboxMatrix/CheckboxMatrix';
+import UserAssignEdit from '../user-assign/UserAssignEdit';
+import { useFallbackTranslation } from '@/hooks/useFallbackTranslation';
 
 interface IProps {
   formControlName: string;
   config?: IFormElements;
 }
 
-const { SELECT, CHECKBOX, DATETIME, TEXTAREA, TEXT, NUMBER, PASSWORD, SEARCH, RANGE, TEXT_EDITOR } = IFormElementsEnum;
+const {
+  SELECT,
+  CHECKBOX,
+  DATETIME,
+  TEXTAREA,
+  TEXT,
+  NUMBER,
+  PASSWORD,
+  SEARCH,
+  RANGE,
+  TEXT_EDITOR,
+  SORTABLE_COLUMNS,
+  CHECKBOX_MATRIX_COLUMN_RULES,
+  USER_ASSIGN_EDIT,
+} = IFormElementsEnum;
 
 const FormElements = ({ formControlName, config }: IProps) => {
-  const { t } = useTranslation();
+  const { t } = useFallbackTranslation();
   const {
     control,
     formState: { errors },
@@ -38,6 +55,9 @@ const FormElements = ({ formControlName, config }: IProps) => {
       [DATETIME]: DateTimePicker,
       [TEXTAREA]: TextArea,
       [TEXT_EDITOR]: TextEditor,
+      [SORTABLE_COLUMNS]: FormSortableColumns,
+      [CHECKBOX_MATRIX_COLUMN_RULES]: CheckboxMatrix,
+      [USER_ASSIGN_EDIT]: UserAssignEdit,
     }),
     []
   );
